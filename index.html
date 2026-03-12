@@ -1,0 +1,2412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillStack Pro - Multi-Track Interview Prep</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Clash+Display:wght@400;600;700&family=Cabinet+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080b14;
+  --surface: #0d1120;
+  --card: #111827;
+  --card2: #161d2e;
+  --border: #1e2a42;
+  --border2: #253047;
+  --accent: #00d4ff;
+  --accent2: #ff6b35;
+  --accent3: #7c3aed;
+  --green: #10e078;
+  --yellow: #fbbf24;
+  --red: #f43f5e;
+  --pink: #ec4899;
+  --text: #e2e8f8;
+  --muted: #64748b;
+  --muted2: #94a3b8;
+  --code-bg: #050810;
+  --gold: #f59e0b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Cabinet Grotesk',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+
+/* ========== AUTH SCREENS ========== */
+#auth-screen{position:fixed;inset:0;background:var(--bg);z-index:8000;display:flex;align-items:center;justify-content:center;overflow:auto;padding:20px}
+.auth-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,#7c3aed18 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,#00d4ff12 0%,transparent 50%);pointer-events:none}
+.auth-wrap{display:flex;width:100%;max-width:960px;min-height:560px;border-radius:20px;overflow:hidden;border:1px solid var(--border2);position:relative;z-index:1;box-shadow:0 40px 120px #00000060}
+.auth-left{flex:1;background:linear-gradient(135deg,#0d1a3a 0%,#1a0a30 50%,#0a1520 100%);padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.auth-left::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,#7c3aed25,transparent 70%);pointer-events:none}
+.auth-left::after{content:'';position:absolute;bottom:-60px;left:-60px;width:250px;height:250px;background:radial-gradient(circle,#00d4ff15,transparent 70%);pointer-events:none}
+.auth-brand{position:relative;z-index:1}
+.auth-brand-logo{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+.auth-brand-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.auth-brand-name{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.auth-headline{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;line-height:1.25;color:var(--text);margin-bottom:16px}
+.auth-headline span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.auth-sub{color:var(--muted2);font-size:0.88rem;line-height:1.7;margin-bottom:28px}
+.auth-features{display:flex;flex-direction:column;gap:10px}
+.auth-feat{display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--muted2)}
+.auth-feat-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.af-blue{background:#00d4ff18;border:1px solid #00d4ff30}
+.af-orange{background:#ff6b3518;border:1px solid #ff6b3530}
+.af-green{background:#10e07818;border:1px solid #10e07830}
+.af-purple{background:#7c3aed18;border:1px solid #7c3aed30}
+.auth-stats{display:flex;gap:20px;position:relative;z-index:1}
+.auth-stat{text-align:center}
+.auth-stat-n{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--accent)}
+.auth-stat-l{font-size:0.68rem;color:var(--muted);margin-top:2px}
+
+.auth-right{width:420px;background:var(--surface);padding:40px;display:flex;flex-direction:column;justify-content:center}
+.auth-tab-row{display:flex;gap:0;margin-bottom:28px;background:var(--card);border-radius:10px;padding:4px}
+.auth-tab{flex:1;padding:8px;text-align:center;font-size:0.82rem;font-weight:700;color:var(--muted);cursor:pointer;border-radius:7px;transition:all 0.2s}
+.auth-tab.active{background:var(--card2);color:var(--text);box-shadow:0 2px 8px #00000040}
+.auth-form-title{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:6px}
+.auth-form-sub{font-size:0.82rem;color:var(--muted);margin-bottom:24px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:0.75rem;font-weight:700;color:var(--muted2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.8px}
+.form-input{width:100%;background:var(--card);border:1px solid var(--border2);border-radius:9px;padding:10px 14px;color:var(--text);font-size:0.88rem;font-family:'Cabinet Grotesk',sans-serif;outline:none;transition:border-color 0.2s}
+.form-input:focus{border-color:var(--accent)}
+.form-input::placeholder{color:var(--muted)}
+.form-input.error{border-color:var(--red)}
+.form-error{font-size:0.75rem;color:var(--red);margin-top:5px;display:none}
+.form-error.show{display:block}
+.btn-auth{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent3));color:white;border:none;padding:12px;border-radius:9px;font-size:0.92rem;font-weight:800;font-family:'Cabinet Grotesk',sans-serif;cursor:pointer;transition:all 0.2s;margin-top:4px;position:relative;overflow:hidden}
+.btn-auth:hover{opacity:0.9;transform:translateY(-1px)}
+.btn-auth:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.auth-divider{text-align:center;color:var(--muted);font-size:0.75rem;margin:16px 0;position:relative}
+.auth-divider::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border)}
+.auth-divider span{background:var(--surface);padding:0 10px;position:relative}
+.auth-switch{text-align:center;font-size:0.8rem;color:var(--muted);margin-top:16px}
+.auth-switch a{color:var(--accent);cursor:pointer;font-weight:700;text-decoration:none}
+.auth-switch a:hover{text-decoration:underline}
+.auth-msg{padding:10px 14px;border-radius:8px;font-size:0.8rem;font-weight:600;margin-bottom:16px;display:none}
+.auth-msg.show{display:block}
+.auth-msg.error{background:#f43f5e15;border:1px solid #f43f5e40;color:var(--red)}
+.auth-msg.success{background:#10e07815;border:1px solid #10e07840;color:var(--green)}
+.auth-msg.info{background:#00d4ff12;border:1px solid #00d4ff35;color:var(--accent)}
+.password-wrap{position:relative}
+.password-wrap .form-input{padding-right:40px}
+.toggle-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:0.85rem;user-select:none}
+.toggle-pw:hover{color:var(--text)}
+
+/* ADMIN DASHBOARD */
+#admin-screen{position:fixed;inset:0;background:var(--bg);z-index:7000;display:none;flex-direction:column}
+.admin-topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between}
+.admin-title{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.admin-title span{color:var(--accent2)}
+.admin-content{flex:1;overflow:auto;padding:28px}
+.admin-stats-row{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.admin-stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 22px;min-width:150px;flex:1}
+.admin-stat-num{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--accent)}
+.admin-stat-label{font-size:0.75rem;color:var(--muted);margin-top:3px}
+.admin-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.admin-table-title{padding:16px 20px;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+table.admin-table{width:100%;border-collapse:collapse;font-size:0.82rem}
+table.admin-table th{background:var(--card2);color:var(--accent);font-weight:800;padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap}
+table.admin-table td{padding:10px 16px;border-bottom:1px solid var(--border)55;color:var(--text);white-space:nowrap}
+table.admin-table tr:last-child td{border-bottom:none}
+table.admin-table tr:hover td{background:#ffffff04}
+.admin-badge{font-size:0.65rem;padding:2px 8px;border-radius:99px;font-weight:700}
+.badge-active{background:#10e07820;color:var(--green)}
+.badge-admin{background:#7c3aed20;color:#a78bfa}
+.badge-new{background:#00d4ff15;color:var(--accent)}
+.btn-admin-del{background:transparent;border:1px solid #f43f5e40;color:var(--red);padding:3px 10px;border-radius:6px;cursor:pointer;font-size:0.72rem;font-family:'Cabinet Grotesk',sans-serif;font-weight:700;transition:all 0.2s}
+.btn-admin-del:hover{background:#f43f5e15}
+.admin-refresh{background:var(--card2);border:1px solid var(--border2);color:var(--muted2);padding:5px 14px;border-radius:7px;cursor:pointer;font-size:0.75rem;font-family:'Cabinet Grotesk',sans-serif;font-weight:600;transition:all 0.2s}
+.admin-refresh:hover{color:var(--text);border-color:var(--muted2)}
+.admin-back{background:transparent;border:1px solid var(--border2);color:var(--muted2);padding:6px 16px;border-radius:7px;cursor:pointer;font-size:0.8rem;font-family:'Cabinet Grotesk',sans-serif;font-weight:700;transition:all 0.2s}
+.admin-back:hover{color:var(--text)}
+
+/* USER MENU in topbar */
+.user-menu-wrap{position:relative}
+.user-pill{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border2);border-radius:99px;padding:4px 12px 4px 4px;cursor:pointer;transition:all 0.2s;user-select:none}
+.user-pill:hover{border-color:var(--accent)55}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:white;text-transform:uppercase;flex-shrink:0}
+.user-name-pill{font-size:0.78rem;font-weight:700;color:var(--text)}
+.user-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:var(--card);border:1px solid var(--border2);border-radius:10px;min-width:180px;overflow:hidden;z-index:200;display:none;box-shadow:0 8px 32px #00000050}
+.user-dropdown.open{display:block}
+.user-dd-header{padding:12px 16px;border-bottom:1px solid var(--border);background:var(--card2)}
+.user-dd-name{font-size:0.85rem;font-weight:700;margin-bottom:2px}
+.user-dd-email{font-size:0.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-dd-item{padding:9px 16px;font-size:0.82rem;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--muted2);transition:all 0.15s}
+.user-dd-item:hover{background:var(--card2);color:var(--text)}
+.user-dd-item.danger{color:var(--red)}
+.user-dd-item.danger:hover{background:#f43f5e12}
+.user-dd-sep{height:1px;background:var(--border);margin:2px 0}
+
+/* LOADING */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:20px}
+.load-logo{font-size:3rem;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.1);opacity:0.7}}
+.load-title{font-family:'Clash Display',sans-serif;font-size:1.8rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.load-bar{width:300px;height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.load-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;animation:loadfill 2s ease forwards}
+@keyframes loadfill{to{width:100%}}
+.load-sub{color:var(--muted);font-size:0.85rem}
+
+/* TOP BAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:16px;flex-shrink:0;position:relative;z-index:50}
+.logo{display:flex;align-items:center;gap:8px;font-family:'Clash Display',sans-serif;font-weight:700;font-size:1.1rem;white-space:nowrap}
+.logo-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.logo span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.topbar-mid{flex:1;display:flex;align-items:center;gap:12px;overflow:hidden}
+.prog-section{display:flex;align-items:center;gap:10px;flex:1;min-width:0;max-width:400px}
+.prog-text{font-size:0.72rem;color:var(--muted);white-space:nowrap}
+.prog-bar{flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden;min-width:60px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:99px;transition:width 0.6s cubic-bezier(.34,1.56,.64,1)}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.badge{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:0.75rem;font-weight:700;border:1px solid}
+.badge-xp{background:#fbbf2415;border-color:#fbbf2440;color:var(--yellow)}
+.badge-level{background:#00d4ff15;border-color:#00d4ff40;color:var(--accent)}
+.badge-streak{background:#10e07815;border-color:#10e07840;color:var(--green)}
+
+/* MAIN LAYOUT */
+.main{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:270px;min-width:270px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-search{padding:12px;border-bottom:1px solid var(--border)}
+.sidebar-search input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:0.8rem;font-family:'Cabinet Grotesk',sans-serif;outline:none}
+.sidebar-search input:focus{border-color:var(--accent)}
+.sidebar-search input::placeholder{color:var(--muted)}
+.sidebar-list{flex:1;overflow-y:auto;padding:8px 0}
+.module-header{padding:10px 16px 4px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.module-icon{font-size:0.9rem}
+.module-name{font-size:0.68rem;font-weight:800;color:var(--muted2);text-transform:uppercase;letter-spacing:1.5px;flex:1}
+.module-count{font-size:0.65rem;color:var(--muted);background:var(--border);padding:1px 7px;border-radius:99px}
+.module-arrow{color:var(--muted);font-size:0.65rem;transition:transform 0.2s}
+.module-arrow.open{transform:rotate(90deg)}
+.lesson-btn{display:flex;align-items:center;gap:9px;padding:8px 16px 8px 24px;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;position:relative}
+.lesson-btn:hover{background:var(--card)}
+.lesson-btn.active{background:var(--card2);border-left-color:var(--accent)}
+.lesson-btn.completed .l-num{background:var(--green);color:#051a0e;font-weight:800}
+.l-num{width:22px;height:22px;min-width:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.l-info{flex:1;min-width:0}
+.l-name{font-size:0.8rem;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.l-sub{font-size:0.65rem;color:var(--muted);margin-top:1px}
+.l-diff{font-size:0.58rem;padding:1px 5px;border-radius:4px;font-weight:700}
+.diff-easy{background:#10e07820;color:var(--green)}
+.diff-medium{background:#fbbf2420;color:var(--yellow)}
+.diff-hard{background:#f43f5e20;color:var(--red)}
+.diff-expert{background:#7c3aed20;color:#a78bfa}
+
+/* CONTENT AREA */
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.lesson-scroll{flex:1;overflow-y:auto;padding:24px 28px 40px}
+
+/* LESSON CONTENT */
+.lesson-top{margin-bottom:20px}
+.l-crumb{font-size:0.7rem;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.l-crumb span{color:var(--accent)}
+.l-big-title{font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;line-height:1.2;margin-bottom:8px}
+.l-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tag{font-size:0.7rem;padding:3px 10px;border-radius:99px;font-weight:700}
+.tag-project{background:#ff6b3520;border:1px solid #ff6b3540;color:var(--accent2)}
+.tag-interview{background:#7c3aed20;border:1px solid #7c3aed40;color:#a78bfa}
+.tag-concept{background:#00d4ff20;border:1px solid #00d4ff40;color:var(--accent)}
+
+/* THEORY BLOCK */
+.theory-block{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 22px;margin-bottom:16px}
+.block-title{font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.block-title.blue{color:var(--accent)}
+.block-title.orange{color:var(--accent2)}
+.block-title.green{color:var(--green)}
+.block-title.purple{color:#a78bfa}
+.block-title.yellow{color:var(--yellow)}
+.theory-text{font-size:0.875rem;line-height:1.8;color:#b0bcd8}
+.theory-text p{margin-bottom:10px}
+.theory-text p:last-child{margin-bottom:0}
+.theory-text strong{color:var(--text)}
+.theory-text code{background:var(--code-bg);border:1px solid var(--border);padding:1px 6px;border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:0.82rem;color:var(--accent)}
+.analogy-box{background:linear-gradient(135deg,#1a1030,#0f1a30);border-left:3px solid var(--accent2);border-radius:0 10px 10px 0;padding:12px 16px;margin:12px 0;font-size:0.85rem;color:#c8d4f0;font-style:italic;line-height:1.7}
+.syntax-box{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin:12px 0;font-family:'IBM Plex Mono',monospace;font-size:0.85rem;line-height:1.8;overflow-x:auto}
+.kw{color:#60a5fa}.fn{color:#34d399}.str{color:#fbbf24}.num{color:#fb923c}.cmt{color:#475569}.tbl{color:#e879f9}.col{color:#94a3b8}
+
+/* SCHEMA */
+.schema-grid{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}
+.schema-card{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-width:150px}
+.schema-head{background:linear-gradient(135deg,#1a2040,#1e2850);padding:8px 14px;display:flex;align-items:center;justify-content:space-between}
+.schema-tname{font-size:0.78rem;font-weight:700;color:var(--accent);font-family:'IBM Plex Mono',monospace}
+.schema-rc{font-size:0.62rem;background:var(--border);padding:1px 7px;border-radius:99px;color:var(--muted)}
+.schema-col{padding:5px 14px;font-size:0.73rem;font-family:'IBM Plex Mono',monospace;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted2)}
+.schema-col .pk{color:var(--yellow);font-size:0.6rem;font-weight:800;background:#fbbf2415;padding:1px 5px;border-radius:3px}
+.schema-col .fk{color:var(--pink);font-size:0.6rem;font-weight:800;background:#ec489915;padding:1px 5px;border-radius:3px}
+.schema-col .type{color:#475569;font-size:0.65rem}
+
+/* CHALLENGES */
+.challenges-wrap{display:flex;flex-direction:column;gap:14px;margin-bottom:16px}
+.challenge-card{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--border2);border-radius:12px;overflow:hidden}
+.challenge-header{padding:14px 18px 10px;display:flex;align-items:flex-start;gap:12px}
+.ch-num{width:28px;height:28px;min-width:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent3),#4f46e5);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:white;font-family:'IBM Plex Mono',monospace}
+.ch-body{flex:1}
+.ch-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent2);margin-bottom:4px}
+.ch-title{font-size:0.9rem;font-weight:700;line-height:1.4;margin-bottom:4px}
+.ch-desc{font-size:0.82rem;color:var(--muted2);line-height:1.6}
+.ch-xp{font-size:0.68rem;background:#fbbf2415;border:1px solid #fbbf2430;color:var(--yellow);padding:2px 8px;border-radius:99px;font-weight:700;white-space:nowrap;margin-left:auto}
+
+/* EDITOR */
+.editor-container{border-top:1px solid var(--border);padding:12px 18px 14px}
+.editor-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.editor-dots{display:flex;gap:5px}
+.ed-dot{width:9px;height:9px;border-radius:50%}
+.ed-r{background:#f43f5e}.ed-y{background:#fbbf24}.ed-g{background:#10e078}
+.editor-label{font-size:0.72rem;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.editor-btns{display:flex;gap:7px}
+.btn-hint{background:transparent;border:1px solid var(--border2);color:var(--muted);padding:5px 12px;border-radius:7px;cursor:pointer;font-size:0.75rem;font-family:'Cabinet Grotesk',sans-serif;font-weight:600;transition:all 0.2s}
+.btn-hint:hover{border-color:var(--accent);color:var(--accent)}
+.btn-solution{background:transparent;border:1px solid var(--border2);color:var(--muted);padding:5px 12px;border-radius:7px;cursor:pointer;font-size:0.75rem;font-family:'Cabinet Grotesk',sans-serif;font-weight:600;transition:all 0.2s}
+.btn-solution:hover{border-color:var(--accent2);color:var(--accent2)}
+.btn-run{background:linear-gradient(135deg,var(--accent),#0099cc);color:#000;border:none;padding:6px 18px;border-radius:7px;cursor:pointer;font-size:0.8rem;font-weight:800;font-family:'Cabinet Grotesk',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:5px}
+.btn-run:hover{opacity:0.85;transform:scale(1.02)}
+.btn-run:active{transform:scale(0.98)}
+textarea.sql-input{width:100%;background:var(--code-bg);border:1px solid var(--border);border-radius:9px;color:#7dd3fc;font-family:'IBM Plex Mono',monospace;font-size:0.88rem;padding:14px 16px;resize:vertical;min-height:90px;outline:none;line-height:1.7;caret-color:var(--accent);transition:border-color 0.2s}
+textarea.sql-input:focus{border-color:var(--accent)55}
+
+/* RESULTS */
+.result-box{margin-top:10px}
+.result-table-wrap{overflow-x:auto;border-radius:9px;border:1px solid var(--border)}
+table.rt{width:100%;border-collapse:collapse;font-size:0.78rem}
+table.rt th{background:var(--card2);color:var(--accent);font-weight:800;padding:8px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+table.rt td{padding:7px 14px;border-bottom:1px solid var(--border)55;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:0.78rem;white-space:nowrap}
+table.rt tr:last-child td{border-bottom:none}
+table.rt tr:hover td{background:#ffffff05}
+.result-meta{font-size:0.72rem;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:8px}
+.msg{padding:10px 14px;border-radius:9px;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:8px}
+.msg-success{background:#10e07810;border:1px solid #10e07830;color:var(--green)}
+.msg-error{background:#f43f5e10;border:1px solid #f43f5e30;color:var(--red);font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:400}
+.msg-hint{background:#00d4ff10;border:1px solid #00d4ff30;color:var(--accent)}
+.msg-solution{background:#ff6b3510;border:1px solid #ff6b3530;color:var(--accent2)}
+.msg-correct{background:#10e07815;border:1px solid #10e07845;color:var(--green);padding:12px 16px;border-radius:9px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:0.88rem}
+
+/* CHALLENGE DONE */
+.ch-done-badge{display:none;align-items:center;gap:6px;font-size:0.72rem;color:var(--green);font-weight:700;margin-left:8px}
+.ch-done-badge.show{display:flex}
+
+/* NAV */
+.lesson-nav{display:flex;align-items:center;justify-content:space-between;padding-top:20px;border-top:1px solid var(--border);margin-top:8px}
+.btn-nav{padding:9px 22px;border-radius:9px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+.btn-prev-l{background:transparent;border:1px solid var(--border2);color:var(--muted2)}
+.btn-prev-l:hover{border-color:var(--muted2);color:var(--text)}
+.btn-next-l{background:linear-gradient(135deg,var(--accent),#0099cc);color:#000;border:none}
+.btn-next-l:hover{opacity:0.85}
+.btn-finish{background:linear-gradient(135deg,var(--gold),var(--accent2));color:#000;border:none;padding:10px 28px;border-radius:9px;font-size:0.9rem;font-weight:800;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif}
+
+/* RIGHT PANEL */
+.right-panel{width:240px;min-width:240px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.panel-tabs{display:flex;border-bottom:1px solid var(--border)}
+.ptab{flex:1;padding:10px 4px;text-align:center;font-size:0.68rem;font-weight:700;color:var(--muted);cursor:pointer;transition:all 0.2s;border-bottom:2px solid transparent;text-transform:uppercase;letter-spacing:0.8px}
+.ptab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.panel-content{flex:1;overflow-y:auto;padding:12px}
+.panel-section{font-size:0.62rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin:10px 0 6px;display:flex;align-items:center;gap:5px}
+.db-table-card{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden}
+.db-th{padding:7px 12px;font-size:0.75rem;font-weight:700;color:var(--accent);display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:'IBM Plex Mono',monospace}
+.db-cols{display:none}
+.db-cols.open{display:block}
+.db-col-row{padding:4px 12px;font-size:0.7rem;font-family:'IBM Plex Mono',monospace;color:var(--muted2);border-top:1px solid var(--border);display:flex;justify-content:space-between}
+.db-col-type{color:#334155;font-size:0.62rem}
+
+/* INTERVIEW PANEL */
+.iq-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.iq-q{font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.4}
+.iq-a{font-size:0.74rem;color:var(--muted2);line-height:1.6;display:none}
+.iq-a.show{display:block}
+.iq-toggle{font-size:0.65rem;color:var(--accent);cursor:pointer;font-weight:700;margin-top:5px;display:inline-block}
+
+/* COMPLETION MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:#00000090;z-index:200;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:32px;text-align:center;max-width:400px;width:90%}
+.modal-icon{font-size:3rem;margin-bottom:12px}
+.modal-title{font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,var(--gold),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.modal-body{color:var(--muted2);font-size:0.88rem;line-height:1.6;margin-bottom:20px}
+.modal-xp{font-size:1.4rem;font-weight:800;color:var(--yellow);margin:10px 0}
+.btn-modal{background:linear-gradient(135deg,var(--accent),#0099cc);color:#000;border:none;padding:10px 28px;border-radius:9px;font-size:0.9rem;font-weight:800;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif}
+
+/* SCROLLBARS */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+
+/* WELCOME SCREEN */
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:40px}
+.welcome-icon{font-size:4rem;margin-bottom:16px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.welcome-title{font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;margin-bottom:12px;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.welcome-sub{color:var(--muted2);font-size:0.95rem;line-height:1.7;max-width:500px;margin-bottom:24px}
+.welcome-stats{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
+.stat-pill{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 20px;text-align:center}
+.stat-num{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;color:var(--accent)}
+.stat-lbl{font-size:0.72rem;color:var(--muted);margin-top:2px}
+.btn-start{background:linear-gradient(135deg,var(--accent),var(--accent3));color:white;border:none;padding:12px 32px;border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;transition:all 0.2s}
+.btn-start:hover{opacity:0.85;transform:translateY(-2px)}
+
+/* INTERVIEW PREP MODULE */
+.interview-hero{background:linear-gradient(135deg,#1a0a30,#0a1a30);border:1px solid var(--accent3)40;border-radius:12px;padding:20px;margin-bottom:16px;text-align:center}
+.interview-hero h2{font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:6px;color:#a78bfa}
+.interview-hero p{font-size:0.85rem;color:var(--muted2)}
+.iq-section-title{font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent3);margin:16px 0 8px;display:flex;align-items:center;gap:6px}
+.iq-full-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px}
+.iq-full-card .question{font-size:0.9rem;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.5}
+.iq-full-card .company-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.co-tag{font-size:0.65rem;padding:2px 8px;border-radius:99px;font-weight:700}
+.co-amazon{background:#ff990020;color:#ff9900}
+.co-google{background:#4285f420;color:#4285f4}
+.co-microsoft{background:#00a4ef20;color:#00a4ef}
+.co-meta{background:#1877f220;color:#4fadff}
+.co-flipkart{background:#2874f020;color:#2874f0}
+.iq-full-card .answer-box{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:10px;display:none}
+.iq-full-card .answer-box.show{display:block}
+.iq-full-card .answer-box pre{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:#7dd3fc;white-space:pre-wrap;line-height:1.7}
+.show-ans-btn{font-size:0.72rem;color:var(--accent2);cursor:pointer;font-weight:700;display:flex;align-items:center;gap:4px;background:none;border:none;font-family:'Cabinet Grotesk',sans-serif;padding:0}
+
+/* PROJECT SECTIONS */
+.project-banner{background:linear-gradient(135deg,#1a0f00,#0f1a00);border:1px solid var(--accent2)40;border-radius:12px;padding:18px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.project-icon{font-size:2rem}
+.project-info h3{font-size:0.9rem;font-weight:800;color:var(--accent2);margin-bottom:4px}
+.project-info p{font-size:0.8rem;color:var(--muted2);line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" style="display:none">
+  <div class="auth-bg"></div>
+  <div class="auth-wrap">
+    <div class="auth-left">
+      <div class="auth-brand">
+        <div class="auth-brand-logo">
+          <div class="auth-brand-icon">🗄</div>
+          <div class="auth-brand-name">SkillStack Pro</div>
+        </div>
+        <div class="auth-headline">Become a <span>Data &amp; Code Champion</span> &amp; crack interviews</div>
+        <div class="auth-sub">Start with SQL Track, then expand into Python and JavaScript tracks with projects, challenges, and interview prep.</div>
+        <div class="auth-features">
+          <div class="auth-feat"><div class="auth-feat-icon af-blue">🗄</div>42 lessons across 8 modules</div>
+          <div class="auth-feat"><div class="auth-feat-icon af-orange">🎯</div>80+ real coding challenges</div>
+          <div class="auth-feat"><div class="auth-feat-icon af-green">💼</div>50+ actual interview Q&amp;As</div>
+          <div class="auth-feat"><div class="auth-feat-icon af-purple">📊</div>Progress saved to your account</div>
+        </div>
+      </div>
+      <div class="auth-stats">
+        <div class="auth-stat"><div class="auth-stat-n">42</div><div class="auth-stat-l">Lessons</div></div>
+        <div class="auth-stat"><div class="auth-stat-n">80+</div><div class="auth-stat-l">Challenges</div></div>
+        <div class="auth-stat"><div class="auth-stat-n">8</div><div class="auth-stat-l">Modules</div></div>
+        <div class="auth-stat"><div class="auth-stat-n" id="auth-user-count">—</div><div class="auth-stat-l">Learners</div></div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-tab-row">
+        <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</div>
+        <div class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Register</div>
+      </div>
+      <div id="login-form">
+        <div class="auth-form-title">Welcome back!</div>
+        <div class="auth-form-sub">Sign in to continue your learning journey.</div>
+        <div class="auth-msg" id="login-msg"></div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="login-email" type="email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="password-wrap">
+            <input class="form-input" id="login-password" type="password" placeholder="Your password">
+            <span class="toggle-pw" onclick="togglePw('login-password',this)">👁</span>
+          </div>
+        </div>
+        <button class="btn-auth" id="btn-login" onclick="doLogin()">Sign In →</button>
+        <div class="auth-switch">No account? <a onclick="switchAuthTab('register')">Register free</a></div>
+      </div>
+      <div id="register-form" style="display:none">
+        <div class="auth-form-title">Create account</div>
+        <div class="auth-form-sub">Join thousands learning SQL for free.</div>
+        <div class="auth-msg" id="register-msg"></div>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" id="reg-name" type="text" placeholder="Priya Sharma">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="reg-email" type="email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password <span style="color:var(--muted);font-weight:400">(min 6 chars)</span></label>
+          <div class="password-wrap">
+            <input class="form-input" id="reg-password" type="password" placeholder="Create a password">
+            <span class="toggle-pw" onclick="togglePw('reg-password',this)">👁</span>
+          </div>
+        </div>
+        <button class="btn-auth" id="btn-register" onclick="doRegister()">Create Account →</button>
+        <div class="auth-switch">Have an account? <a onclick="switchAuthTab('login')">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN SCREEN -->
+<div id="admin-screen" style="display:none;flex-direction:column">
+  <div class="admin-topbar">
+    <div class="admin-title">🛡 Admin <span>Dashboard</span></div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="admin-refresh" onclick="loadAdminData()">🔄 Refresh</button>
+      <button class="admin-back" onclick="closeAdmin()">← Back to App</button>
+    </div>
+  </div>
+  <div class="admin-content">
+    <div class="admin-stats-row">
+      <div class="admin-stat-card"><div class="admin-stat-num" id="as-total">—</div><div class="admin-stat-label">Total Users</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" id="as-active">—</div><div class="admin-stat-label">Active (last 7d)</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" id="as-xp">—</div><div class="admin-stat-label">Avg XP Earned</div></div>
+      <div class="admin-stat-card"><div class="admin-stat-num" id="as-complete">—</div><div class="admin-stat-label">Avg Challenges Done</div></div>
+    </div>
+    <div class="admin-table-wrap">
+      <div class="admin-table-title">
+        <span>👥 Registered Users</span>
+        <span id="admin-user-count-label" style="color:var(--muted);font-weight:400"></span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>XP</th><th>Challenges</th><th>Last Active</th><th>Role</th><th>Action</th></tr></thead>
+          <tbody id="admin-user-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="loading" style="display:none">
+  <div class="load-logo">🗄️</div>
+  <div class="load-title">SkillStack Pro</div>
+  <div class="load-bar"><div class="load-fill"></div></div>
+  <div class="load-sub">Loading 40+ lessons · Real projects · Interview prep…</div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo"><div class="logo-icon">SS</div><span>SkillStack Pro</span></div>
+  <div class="topbar-mid">
+    <div class="prog-section">
+      <div class="prog-text" id="prog-text">0 / 42</div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="badge badge-xp">⭐ <span id="xp-val">0</span> XP</div>
+    <div class="badge badge-level">🎯 Lv.<span id="lv-val">1</span></div>
+    <div class="badge badge-streak">🔥 <span id="streak-val">0</span> done</div>
+    <div class="user-menu-wrap" id="user-menu-wrap" style="display:none">
+      <div class="user-pill" onclick="toggleUserMenu()">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <span class="user-name-pill" id="user-name-pill">User</span>
+        <span style="color:var(--muted);font-size:0.65rem;margin-left:2px">▾</span>
+      </div>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dd-header">
+          <div class="user-dd-name" id="dd-name">—</div>
+          <div class="user-dd-email" id="dd-email">—</div>
+        </div>
+        <div class="user-dd-item" onclick="showProfile()">👤 My Profile</div>
+        <div class="user-dd-item" id="admin-menu-item" style="display:none" onclick="openAdmin()">🛡 Admin Dashboard</div>
+        <div class="user-dd-sep"></div>
+        <div class="user-dd-item danger" onclick="doLogout()">🚪 Sign Out</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-search">
+      <input type="text" placeholder="🔍 Search lessons…" id="search-input" oninput="filterLessons(this.value)">
+    </div>
+    <div class="sidebar-list" id="sidebar-list"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="lesson-scroll" id="lesson-scroll">
+      <div class="welcome" id="welcome-screen">
+        <div class="welcome-icon">🚀</div>
+        <div class="welcome-title">Become a SkillStack Champion</div>
+        <div class="welcome-sub">Master the SQL Track from zero to interview-ready, then unlock more programming tracks with projects and mock interviews.</div>
+        <div class="welcome-stats">
+          <div class="stat-pill"><div class="stat-num">36</div><div class="stat-lbl">Lessons</div></div>
+          <div class="stat-pill"><div class="stat-num">86</div><div class="stat-lbl">Challenges</div></div>
+          <div class="stat-pill"><div class="stat-num">9</div><div class="stat-lbl">Modules</div></div>
+          <div class="stat-pill"><div class="stat-num">50+</div><div class="stat-lbl">Interview Qs</div></div>
+        </div>
+        <button class="btn-start" onclick="startLearning()">Start Learning →</button>
+      </div>
+      <div id="lesson-content" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="panel-tabs">
+      <div class="ptab active" onclick="switchPanel('db',this)">DB</div>
+      <div class="ptab" onclick="switchPanel('iq',this)">Interview</div>
+      <div class="ptab" onclick="switchPanel('ref',this)">Ref</div>
+    </div>
+    <div class="panel-content" id="panel-db">
+      <div class="panel-section">📊 Tables</div>
+      <div id="db-panel-content"></div>
+    </div>
+    <div class="panel-content" id="panel-iq" style="display:none">
+      <div class="panel-section">💼 Quick Interview Qs</div>
+      <div id="iq-panel-content"></div>
+    </div>
+    <div class="panel-content" id="panel-ref" style="display:none">
+      <div class="panel-section">📖 SQL Reference</div>
+      <div id="ref-panel-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon" id="modal-icon">🎉</div>
+    <div class="modal-title" id="modal-title">Challenge Complete!</div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-xp" id="modal-xp">+50 XP</div>
+    <button class="btn-modal" onclick="closeModal()">Continue →</button>
+  </div>
+</div>
+
+<script>
+// =====================================================
+// DATABASE SCHEMA & SEED
+// =====================================================
+const DB_SQL = `
+CREATE TABLE customers (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE,
+  city TEXT,
+  state TEXT,
+  age INTEGER,
+  gender TEXT,
+  signup_date TEXT,
+  is_premium INTEGER DEFAULT 0
+);
+
+CREATE TABLE categories (
+  id INTEGER PRIMARY KEY,
+  name TEXT,
+  parent_id INTEGER
+);
+
+CREATE TABLE products (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  category_id INTEGER,
+  price REAL,
+  cost REAL,
+  stock INTEGER,
+  rating REAL,
+  total_reviews INTEGER,
+  brand TEXT,
+  is_active INTEGER DEFAULT 1,
+  FOREIGN KEY(category_id) REFERENCES categories(id)
+);
+
+CREATE TABLE orders (
+  id INTEGER PRIMARY KEY,
+  customer_id INTEGER,
+  order_date TEXT,
+  delivery_date TEXT,
+  status TEXT,
+  payment_method TEXT,
+  shipping_city TEXT,
+  FOREIGN KEY(customer_id) REFERENCES customers(id)
+);
+
+CREATE TABLE order_items (
+  id INTEGER PRIMARY KEY,
+  order_id INTEGER,
+  product_id INTEGER,
+  quantity INTEGER,
+  unit_price REAL,
+  discount REAL DEFAULT 0,
+  FOREIGN KEY(order_id) REFERENCES orders(id),
+  FOREIGN KEY(product_id) REFERENCES products(id)
+);
+
+CREATE TABLE reviews (
+  id INTEGER PRIMARY KEY,
+  product_id INTEGER,
+  customer_id INTEGER,
+  rating INTEGER,
+  review_text TEXT,
+  review_date TEXT,
+  helpful_votes INTEGER DEFAULT 0,
+  FOREIGN KEY(product_id) REFERENCES products(id),
+  FOREIGN KEY(customer_id) REFERENCES customers(id)
+);
+
+CREATE TABLE employees (
+  id INTEGER PRIMARY KEY,
+  name TEXT,
+  department TEXT,
+  manager_id INTEGER,
+  salary REAL,
+  hire_date TEXT,
+  city TEXT
+);
+
+-- CUSTOMERS
+INSERT INTO customers VALUES(1,'Priya Sharma','priya@gmail.com','Mumbai','Maharashtra',28,'F','2022-01-15',1);
+INSERT INTO customers VALUES(2,'Ravi Kumar','ravi@gmail.com','Delhi','Delhi',35,'M','2022-03-22',0);
+INSERT INTO customers VALUES(3,'Ananya Singh','ananya@gmail.com','Bengaluru','Karnataka',24,'F','2023-06-10',1);
+INSERT INTO customers VALUES(4,'Mohit Jain','mohit@gmail.com','Jaipur','Rajasthan',41,'M','2023-08-01',0);
+INSERT INTO customers VALUES(5,'Sneha Patel','sneha@gmail.com','Ahmedabad','Gujarat',30,'F','2024-01-05',1);
+INSERT INTO customers VALUES(6,'Arjun Nair','arjun@gmail.com','Chennai','Tamil Nadu',27,'M','2022-07-20',0);
+INSERT INTO customers VALUES(7,'Kavya Reddy','kavya@gmail.com','Hyderabad','Telangana',33,'F','2023-02-14',1);
+INSERT INTO customers VALUES(8,'Vikram Singh','vikram@gmail.com','Pune','Maharashtra',38,'M','2022-11-30',0);
+INSERT INTO customers VALUES(9,'Divya Menon','divya@gmail.com','Kochi','Kerala',26,'F','2024-03-01',0);
+INSERT INTO customers VALUES(10,'Rahul Gupta','rahul@gmail.com','Lucknow','Uttar Pradesh',44,'M','2021-12-05',1);
+INSERT INTO customers VALUES(11,'Pooja Sharma','pooja@gmail.com','Mumbai','Maharashtra',31,'F','2023-09-18',0);
+INSERT INTO customers VALUES(12,'Amit Verma','amit@gmail.com','Delhi','Delhi',29,'M','2022-05-07',1);
+
+-- CATEGORIES
+INSERT INTO categories VALUES(1,'Electronics',NULL);
+INSERT INTO categories VALUES(2,'Clothing',NULL);
+INSERT INTO categories VALUES(3,'Books',NULL);
+INSERT INTO categories VALUES(4,'Home & Kitchen',NULL);
+INSERT INTO categories VALUES(5,'Fitness',NULL);
+INSERT INTO categories VALUES(6,'Laptops',1);
+INSERT INTO categories VALUES(7,'Mobiles',1);
+INSERT INTO categories VALUES(8,'Accessories',1);
+
+-- PRODUCTS
+INSERT INTO products VALUES(1,'Laptop Pro X','Electronics',65000,45000,12,4.5,234,'TechBrand',1);
+INSERT INTO products VALUES(2,'Wireless Earbuds','Electronics',2999,1200,85,4.2,567,'SoundCo',1);
+INSERT INTO products VALUES(3,'USB-C Hub 7-Port','Electronics',1499,700,120,4.0,189,'TechBrand',1);
+INSERT INTO products VALUES(4,'Mechanical Keyboard','Electronics',4500,2100,34,4.7,312,'KeyMaster',1);
+INSERT INTO products VALUES(5,'4K Monitor 27in','Electronics',32000,22000,8,4.6,145,'VisualTech',1);
+INSERT INTO products VALUES(6,'Running Shoes','Clothing',3500,1500,60,4.3,421,'SportStep',1);
+INSERT INTO products VALUES(7,'Yoga Mat Premium','Fitness',1200,500,90,4.4,278,'FitLife',1);
+INSERT INTO products VALUES(8,'Python Cookbook','Books',799,300,200,4.8,892,'TechPub',1);
+INSERT INTO products VALUES(9,'SQL Mastery Book','Books',649,250,150,4.9,1204,'DataPub',1);
+INSERT INTO products VALUES(10,'Air Fryer XL','Home & Kitchen',5500,2800,25,4.1,356,'HomeChef',1);
+INSERT INTO products VALUES(11,'Water Bottle Steel','Fitness',599,200,300,4.5,678,'EcoLife',1);
+INSERT INTO products VALUES(12,'Smartwatch Series 3','Electronics',12000,7000,45,4.3,523,'TechBrand',1);
+INSERT INTO products VALUES(13,'Protein Powder 1kg','Fitness',2200,900,70,4.0,234,'NutriFit',1);
+INSERT INTO products VALUES(14,'Desk Lamp LED','Home & Kitchen',899,350,110,4.2,167,'LightCo',1);
+INSERT INTO products VALUES(15,'Cotton T-Shirt Pack','Clothing',999,400,180,4.1,445,'WearWell',1);
+INSERT INTO products VALUES(16,'Blender Pro','Home & Kitchen',3200,1600,18,4.4,203,'HomeChef',1);
+INSERT INTO products VALUES(17,'Resistance Bands','Fitness',499,150,250,4.6,389,'FitLife',1);
+INSERT INTO products VALUES(18,'Novel: The Algorithm','Books',399,120,95,4.7,156,'LitHouse',1);
+INSERT INTO products VALUES(19,'Gaming Mouse','Electronics',1800,800,55,4.5,445,'TechBrand',1);
+INSERT INTO products VALUES(20,'Old Discontinued Item','Electronics',100,50,0,2.1,12,'OldBrand',0);
+
+-- ORDERS
+INSERT INTO orders VALUES(1,1,'2024-01-15','2024-01-18','Delivered','Credit Card','Mumbai');
+INSERT INTO orders VALUES(2,2,'2024-01-20','2024-01-24','Delivered','UPI','Delhi');
+INSERT INTO orders VALUES(3,1,'2024-02-01','2024-02-04','Delivered','Credit Card','Mumbai');
+INSERT INTO orders VALUES(4,3,'2024-02-10','2024-02-13','Delivered','Debit Card','Bengaluru');
+INSERT INTO orders VALUES(5,4,'2024-02-15','2024-02-19','Shipped','UPI','Jaipur');
+INSERT INTO orders VALUES(6,5,'2024-02-20',NULL,'Processing','Wallet','Ahmedabad');
+INSERT INTO orders VALUES(7,6,'2024-03-01','2024-03-05','Delivered','Credit Card','Chennai');
+INSERT INTO orders VALUES(8,7,'2024-03-05','2024-03-08','Delivered','UPI','Hyderabad');
+INSERT INTO orders VALUES(9,8,'2024-03-10',NULL,'Cancelled','Debit Card','Pune');
+INSERT INTO orders VALUES(10,3,'2024-03-12','2024-03-15','Delivered','UPI','Bengaluru');
+INSERT INTO orders VALUES(11,9,'2024-03-15','2024-03-19','Delivered','Credit Card','Kochi');
+INSERT INTO orders VALUES(12,10,'2024-03-18','2024-03-21','Delivered','UPI','Lucknow');
+INSERT INTO orders VALUES(13,1,'2024-03-20',NULL,'Processing','Credit Card','Mumbai');
+INSERT INTO orders VALUES(14,11,'2024-03-22','2024-03-26','Delivered','Wallet','Mumbai');
+INSERT INTO orders VALUES(15,12,'2024-03-25','2024-03-28','Delivered','UPI','Delhi');
+INSERT INTO orders VALUES(16,2,'2024-03-28',NULL,'Shipped','Credit Card','Delhi');
+INSERT INTO orders VALUES(17,4,'2024-04-01','2024-04-05','Delivered','UPI','Jaipur');
+INSERT INTO orders VALUES(18,5,'2024-04-05','2024-04-08','Delivered','Credit Card','Ahmedabad');
+
+-- ORDER ITEMS
+INSERT INTO order_items VALUES(1,1,2,1,2999,0);
+INSERT INTO order_items VALUES(2,1,11,2,599,0);
+INSERT INTO order_items VALUES(3,2,8,1,799,50);
+INSERT INTO order_items VALUES(4,2,9,1,649,0);
+INSERT INTO order_items VALUES(5,3,1,1,65000,5000);
+INSERT INTO order_items VALUES(6,4,7,1,1200,0);
+INSERT INTO order_items VALUES(7,4,17,2,499,0);
+INSERT INTO order_items VALUES(8,5,6,1,3500,200);
+INSERT INTO order_items VALUES(9,6,10,1,5500,0);
+INSERT INTO order_items VALUES(10,7,3,1,1499,0);
+INSERT INTO order_items VALUES(11,7,4,1,4500,300);
+INSERT INTO order_items VALUES(12,8,12,1,12000,500);
+INSERT INTO order_items VALUES(13,9,5,1,32000,2000);
+INSERT INTO order_items VALUES(14,10,13,2,2200,0);
+INSERT INTO order_items VALUES(15,10,11,1,599,0);
+INSERT INTO order_items VALUES(16,11,2,1,2999,0);
+INSERT INTO order_items VALUES(17,11,19,1,1800,100);
+INSERT INTO order_items VALUES(18,12,8,2,799,0);
+INSERT INTO order_items VALUES(19,13,15,3,999,0);
+INSERT INTO order_items VALUES(20,14,14,1,899,0);
+INSERT INTO order_items VALUES(21,14,16,1,3200,150);
+INSERT INTO order_items VALUES(22,15,4,1,4500,0);
+INSERT INTO order_items VALUES(23,16,1,1,65000,3000);
+INSERT INTO order_items VALUES(24,17,7,1,1200,0);
+INSERT INTO order_items VALUES(25,17,13,1,2200,200);
+INSERT INTO order_items VALUES(26,18,6,2,3500,0);
+INSERT INTO order_items VALUES(27,18,17,1,499,0);
+
+-- REVIEWS
+INSERT INTO reviews VALUES(1,8,1,5,'Best Python book ever! Highly recommended.',  '2024-01-20',45);
+INSERT INTO reviews VALUES(2,9,3,5,'Helped me crack my data analyst interview!','2024-02-15',89);
+INSERT INTO reviews VALUES(3,2,6,4,'Good sound quality, battery could be better.','2024-03-02',12);
+INSERT INTO reviews VALUES(4,1,10,5,'Blazing fast laptop, worth the price.','2024-03-22',67);
+INSERT INTO reviews VALUES(5,7,4,5,'Best yoga mat in this price range.','2024-03-06',34);
+INSERT INTO reviews VALUES(6,12,8,4,'Great smartwatch, tracks everything.','2024-03-10',23);
+INSERT INTO reviews VALUES(7,6,2,3,'Decent shoes but sizing runs small.','2024-03-14',8);
+INSERT INTO reviews VALUES(8,4,12,5,'Typing feels amazing on this keyboard!','2024-03-25',56);
+INSERT INTO reviews VALUES(9,10,1,4,'Air fryer is good but takes time to heat.','2024-03-28',15);
+INSERT INTO reviews VALUES(10,19,11,5,'Super precise gaming mouse, love it!','2024-03-30',78);
+
+-- EMPLOYEES
+INSERT INTO employees VALUES(1,'Rajesh Sharma','Engineering',NULL,150000,'2020-01-15','Bengaluru');
+INSERT INTO employees VALUES(2,'Preethi Kumar','Engineering',1,90000,'2021-03-10','Bengaluru');
+INSERT INTO employees VALUES(3,'Sanjay Mehta','Engineering',1,95000,'2020-08-22','Mumbai');
+INSERT INTO employees VALUES(4,'Anjali Nair','Marketing',NULL,120000,'2019-06-01','Mumbai');
+INSERT INTO employees VALUES(5,'Deepak Singh','Marketing',4,75000,'2022-01-18','Delhi');
+INSERT INTO employees VALUES(6,'Rohini Patel','Marketing',4,80000,'2021-11-05','Ahmedabad');
+INSERT INTO employees VALUES(7,'Karan Johar','Sales',NULL,130000,'2020-03-15','Delhi');
+INSERT INTO employees VALUES(8,'Megha Iyer','Sales',7,70000,'2022-07-20','Chennai');
+INSERT INTO employees VALUES(9,'Vishal Reddy','Sales',7,72000,'2023-01-09','Hyderabad');
+INSERT INTO employees VALUES(10,'Tanvi Gupta','Engineering',1,88000,'2023-05-15','Bengaluru');
+`;
+
+// =====================================================
+// LESSON DATA - 42 LESSONS
+// =====================================================
+const MODULES = [
+  {
+    name:"🏗 Foundations", icon:"🏗",
+    lessons:[
+      {
+        title:"What is a Database?",
+        sub:"Tables, rows & SQL basics",
+        diff:"easy",xp:30,
+        tags:["concept"],
+        theory:`<p>A <strong>database</strong> is an organized collection of structured data stored electronically. Modern applications — Flipkart, Swiggy, Instagram — all store their data in databases.</p>
+<p>We use <strong>SQL (Structured Query Language)</strong> to interact with databases. It reads almost like English and is the #1 skill for any data analyst.</p>
+<div class="analogy-box">🏬 Think of a database like a library. The library = database. Each bookshelf = a table. Each book = a row. The title/author/year on each book = columns.</div>
+<p><strong>Our project:</strong> You'll work on a real e-commerce database (like Flipkart) with customers, products, orders, reviews, and employees throughout this entire course.</p>`,
+        schema:["customers","products"],
+        challenges:[
+          {label:"First Query",title:"Fetch all customers",desc:"Retrieve all rows and columns from the customers table.",xp:30,hint:"SELECT * FROM customers",solution:"SELECT * FROM customers;",validate:(r)=>r&&r.length>=10},
+          {label:"Products",title:"Fetch all products",desc:"Now do the same for the products table.",xp:30,hint:"SELECT * FROM products",solution:"SELECT * FROM products;",validate:(r)=>r&&r.length>=15}
+        ]
+      },
+      {
+        title:"SELECT Specific Columns",
+        sub:"Choose what data to return",
+        diff:"easy",xp:30,
+        tags:["concept"],
+        theory:`<p><code>SELECT *</code> gets every column, which can be slow on huge tables. In production, always select only the columns you need.</p>
+<div class="syntax-box"><span class="kw">SELECT</span> <span class="col">column1</span>, <span class="col">column2</span>
+<span class="kw">FROM</span> <span class="tbl">table_name</span>;</div>
+<p>Use <strong>AS</strong> to rename columns in output (called aliasing):</p>
+<div class="syntax-box"><span class="kw">SELECT</span> <span class="col">name</span> <span class="kw">AS</span> customer_name, <span class="col">city</span> <span class="kw">AS</span> location
+<span class="kw">FROM</span> <span class="tbl">customers</span>;</div>
+<div class="analogy-box">📋 Instead of "bring me the entire file", you say "just give me the name and phone number". Faster and cleaner.</div>`,
+        schema:["customers"],
+        challenges:[
+          {label:"Select Columns",title:"Get customer name, city and email only",desc:"Select name, city, and email columns from customers. Rename 'name' as 'customer_name'.",xp:35,hint:"SELECT name AS customer_name, city, email FROM customers",solution:"SELECT name AS customer_name, city, email FROM customers;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('customer_name')&&r[0].hasOwnProperty('city')},
+          {label:"Product Columns",title:"Show product name, price and brand",desc:"Select only name, price, and brand from products.",xp:30,hint:"SELECT name, price, brand FROM products",solution:"SELECT name, price, brand FROM products;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('price')&&r[0].hasOwnProperty('brand')&&!r[0].hasOwnProperty('stock')}
+        ]
+      },
+      {
+        title:"DISTINCT — Remove Duplicates",
+        sub:"Unique values only",
+        diff:"easy",xp:35,
+        tags:["concept"],
+        theory:`<p><strong>DISTINCT</strong> removes duplicate rows from your result. Very useful for exploring what unique values exist in a column.</p>
+<div class="syntax-box"><span class="kw">SELECT DISTINCT</span> <span class="col">column_name</span> <span class="kw">FROM</span> <span class="tbl">table_name</span>;</div>
+<p>You can also use DISTINCT on multiple columns — it returns unique <em>combinations</em>.</p>
+<div class="analogy-box">🎨 Like asking "what colors of T-shirts do you have?" instead of listing every single item in stock — you just want the unique options.</div>`,
+        schema:["customers","products","orders"],
+        challenges:[
+          {label:"Cities",title:"List all unique cities customers are from",desc:"Find every distinct city in the customers table.",xp:30,hint:"SELECT DISTINCT city FROM customers",solution:"SELECT DISTINCT city FROM customers;",validate:(r)=>r&&r.length>3&&r.length<13},
+          {label:"Categories",title:"List all unique categories in products",desc:"Find distinct categories from the products table.",xp:30,hint:"SELECT DISTINCT category_id FROM products",solution:"SELECT DISTINCT category_id FROM products;",validate:(r)=>r&&r.length>0},
+          {label:"Payment Methods",title:"What payment methods do customers use?",desc:"Find all distinct payment methods used in the orders table.",xp:35,hint:"SELECT DISTINCT payment_method FROM orders",solution:"SELECT DISTINCT payment_method FROM orders;",validate:(r)=>r&&r.length>=3}
+        ]
+      },
+      {
+        title:"WHERE — Filter Rows",
+        sub:"Conditions to narrow results",
+        diff:"easy",xp:40,
+        tags:["concept","interview"],
+        theory:`<p><strong>WHERE</strong> filters rows. Only rows matching the condition are returned. This is one of the most used clauses in SQL.</p>
+<div class="syntax-box"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">table</span> <span class="kw">WHERE</span> <span class="col">column</span> = <span class="str">'value'</span>;</div>
+<p>Comparison operators: <code>=</code> <code>!=</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></p>
+<p>For text, use single quotes. For numbers, no quotes.</p>
+<div class="analogy-box">🔍 Like using "Filter by City = Mumbai" on a website — WHERE is exactly that filter, just in code.</div>`,
+        schema:["customers","products"],
+        challenges:[
+          {label:"Filter City",title:"Find all customers from Mumbai",desc:"Use WHERE to filter customers where city is Mumbai.",xp:30,hint:"SELECT * FROM customers WHERE city = 'Mumbai'",solution:"SELECT * FROM customers WHERE city = 'Mumbai';",validate:(r)=>r&&r.length>=2},
+          {label:"Price Filter",title:"Find products costing more than ₹3000",desc:"Filter products where price is greater than 3000.",xp:35,hint:"SELECT * FROM products WHERE price > 3000",solution:"SELECT * FROM products WHERE price > 3000;",validate:(r)=>r&&r.length>0},
+          {label:"Premium",title:"Find all premium customers",desc:"Filter customers where is_premium = 1.",xp:35,hint:"SELECT * FROM customers WHERE is_premium = 1",solution:"SELECT * FROM customers WHERE is_premium = 1;",validate:(r)=>r&&r.length>=4}
+        ]
+      },
+      {
+        title:"AND, OR, NOT",
+        sub:"Combine multiple conditions",
+        diff:"easy",xp:40,
+        tags:["concept"],
+        theory:`<p>Combine conditions using logical operators:</p>
+<p>• <strong>AND</strong> — ALL conditions must be true<br>• <strong>OR</strong> — AT LEAST ONE condition must be true<br>• <strong>NOT</strong> — reverses a condition</p>
+<div class="syntax-box"><span class="cmt">-- AND example</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">products</span>
+<span class="kw">WHERE</span> price &gt; 1000 <span class="kw">AND</span> <span class="col">rating</span> &gt;= 4.5;
+
+<span class="cmt">-- OR example</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">customers</span>
+<span class="kw">WHERE</span> <span class="col">city</span> = <span class="str">'Mumbai'</span> <span class="kw">OR</span> <span class="col">city</span> = <span class="str">'Delhi'</span>;</div>
+<div class="analogy-box">🛒 "Show me Electronics under ₹5000 with rating above 4" = AND. "Show me orders from Mumbai OR Delhi" = OR.</div>`,
+        schema:["products","customers"],
+        challenges:[
+          {label:"AND",title:"Find affordable, well-rated products",desc:"Find products with price less than 2000 AND rating greater than 4.3",xp:40,hint:"SELECT * FROM products WHERE price < 2000 AND rating > 4.3",solution:"SELECT * FROM products WHERE price < 2000 AND rating > 4.3;",validate:(r)=>r&&r.length>0},
+          {label:"OR",title:"Customers from Mumbai or Delhi",desc:"Find customers who live in either Mumbai or Delhi.",xp:35,hint:"SELECT * FROM customers WHERE city = 'Mumbai' OR city = 'Delhi'",solution:"SELECT * FROM customers WHERE city = 'Mumbai' OR city = 'Delhi';",validate:(r)=>r&&r.length>=4},
+          {label:"NOT",title:"Products NOT in Electronics",desc:"Find all products where category_id is NOT 1 (Electronics).",xp:40,hint:"SELECT * FROM products WHERE NOT category_id = 1",solution:"SELECT * FROM products WHERE category_id != 1;",validate:(r)=>r&&r.length>0}
+        ]
+      }
+    ]
+  },
+  {
+    name:"🔍 Filtering Pro", icon:"🔍",
+    lessons:[
+      {
+        title:"IN and NOT IN",
+        sub:"Match against a list of values",
+        diff:"easy",xp:40,
+        tags:["concept","interview"],
+        theory:`<p><strong>IN</strong> lets you match against a list of values — much cleaner than multiple OR conditions.</p>
+<div class="syntax-box"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">customers</span>
+<span class="kw">WHERE</span> <span class="col">city</span> <span class="kw">IN</span> (<span class="str">'Mumbai'</span>, <span class="str">'Delhi'</span>, <span class="str">'Bengaluru'</span>);
+
+<span class="cmt">-- NOT IN</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">orders</span>
+<span class="kw">WHERE</span> <span class="col">status</span> <span class="kw">NOT IN</span> (<span class="str">'Cancelled'</span>, <span class="str">'Processing'</span>);</div>
+<div class="analogy-box">📱 Like filtering by multiple states on a form: checkboxes for Maharashtra, Delhi, Karnataka — IN is exactly that.</div>`,
+        schema:["customers","orders"],
+        challenges:[
+          {label:"IN",title:"Customers from metro cities",desc:"Find customers from Mumbai, Delhi, Bengaluru, or Hyderabad.",xp:35,hint:"SELECT * FROM customers WHERE city IN ('Mumbai','Delhi','Bengaluru','Hyderabad')",solution:"SELECT * FROM customers WHERE city IN ('Mumbai','Delhi','Bengaluru','Hyderabad');",validate:(r)=>r&&r.length>=5},
+          {label:"NOT IN",title:"Active orders only",desc:"Find orders where status is NOT 'Cancelled' and NOT 'Processing'.",xp:40,hint:"SELECT * FROM orders WHERE status NOT IN ('Cancelled','Processing')",solution:"SELECT * FROM orders WHERE status NOT IN ('Cancelled','Processing');",validate:(r)=>r&&r.length>0}
+        ]
+      },
+      {
+        title:"BETWEEN and Ranges",
+        sub:"Filter within a range",
+        diff:"easy",xp:40,
+        tags:["concept"],
+        theory:`<p><strong>BETWEEN</strong> filters values in an inclusive range (includes both endpoints).</p>
+<div class="syntax-box"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">products</span>
+<span class="kw">WHERE</span> <span class="col">price</span> <span class="kw">BETWEEN</span> 500 <span class="kw">AND</span> 5000;
+
+<span class="cmt">-- Works on dates too!</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">orders</span>
+<span class="kw">WHERE</span> <span class="col">order_date</span> <span class="kw">BETWEEN</span> <span class="str">'2024-01-01'</span> <span class="kw">AND</span> <span class="str">'2024-03-31'</span>;</div>
+<div class="analogy-box">💰 Like a price range slider: ₹500 to ₹5000. BETWEEN handles this in one clean expression.</div>`,
+        schema:["products","orders"],
+        challenges:[
+          {label:"Price Range",title:"Mid-range products",desc:"Find products priced between ₹1000 and ₹10000.",xp:35,hint:"SELECT * FROM products WHERE price BETWEEN 1000 AND 10000",solution:"SELECT * FROM products WHERE price BETWEEN 1000 AND 10000;",validate:(r)=>r&&r.length>0},
+          {label:"Date Range",title:"Q1 2024 orders",desc:"Find all orders placed in January-March 2024.",xp:45,hint:"SELECT * FROM orders WHERE order_date BETWEEN '2024-01-01' AND '2024-03-31'",solution:"SELECT * FROM orders WHERE order_date BETWEEN '2024-01-01' AND '2024-03-31';",validate:(r)=>r&&r.length>0},
+          {label:"Age",title:"Customers aged 25 to 35",desc:"Find customers with age between 25 and 35.",xp:35,hint:"SELECT * FROM customers WHERE age BETWEEN 25 AND 35",solution:"SELECT * FROM customers WHERE age BETWEEN 25 AND 35;",validate:(r)=>r&&r.length>0}
+        ]
+      },
+      {
+        title:"LIKE — Pattern Matching",
+        sub:"Search by text patterns",
+        diff:"medium",xp:45,
+        tags:["concept","interview"],
+        theory:`<p><strong>LIKE</strong> searches for a pattern within text values.</p>
+<p>• <code>%</code> = any sequence of characters (wildcard)<br>• <code>_</code> = exactly one character</p>
+<div class="syntax-box"><span class="cmt">-- Starts with 'S'</span>
+<span class="kw">WHERE</span> <span class="col">name</span> <span class="kw">LIKE</span> <span class="str">'S%'</span>
+
+<span class="cmt">-- Contains 'book'</span>
+<span class="kw">WHERE</span> <span class="col">name</span> <span class="kw">LIKE</span> <span class="str">'%book%'</span>
+
+<span class="cmt">-- Ends with '.com'</span>
+<span class="kw">WHERE</span> <span class="col">email</span> <span class="kw">LIKE</span> <span class="str">'%.com'</span></div>
+<div class="analogy-box">🔎 Like Google search's "contains" — LIKE '%python%' finds anything with "python" anywhere in the text.</div>`,
+        schema:["customers","products"],
+        challenges:[
+          {label:"Starts With",title:"Find customers whose name starts with 'P'",desc:"Use LIKE to find all customers with names beginning with P.",xp:35,hint:"SELECT * FROM customers WHERE name LIKE 'P%'",solution:"SELECT * FROM customers WHERE name LIKE 'P%';",validate:(r)=>r&&r.length>=2},
+          {label:"Contains",title:"Find products related to 'fitness'",desc:"Find products where name or category might contain relevant keywords. Search for products with 'Mat' in their name.",xp:40,hint:"SELECT * FROM products WHERE name LIKE '%Mat%'",solution:"SELECT * FROM products WHERE name LIKE '%Mat%';",validate:(r)=>r&&r.length>=1},
+          {label:"Email Domain",title:"Find all Gmail customers",desc:"Find customers whose email ends with '@gmail.com'.",xp:40,hint:"SELECT * FROM customers WHERE email LIKE '%@gmail.com'",solution:"SELECT * FROM customers WHERE email LIKE '%@gmail.com';",validate:(r)=>r&&r.length>=5}
+        ]
+      },
+      {
+        title:"NULL Values",
+        sub:"Handling missing data",
+        diff:"medium",xp:50,
+        tags:["concept","interview"],
+        theory:`<p><strong>NULL</strong> means "no value" or "unknown". It's NOT zero, NOT empty string — it's the absence of a value.</p>
+<p>You CANNOT use <code>= NULL</code> — that never works. Always use <code>IS NULL</code> or <code>IS NOT NULL</code>.</p>
+<div class="syntax-box"><span class="cmt">-- Find orders without delivery date</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">orders</span>
+<span class="kw">WHERE</span> <span class="col">delivery_date</span> <span class="kw">IS NULL</span>;
+
+<span class="cmt">-- COALESCE returns first non-null value</span>
+<span class="kw">SELECT</span> <span class="col">name</span>, <span class="fn">COALESCE</span>(<span class="col">delivery_date</span>, <span class="str">'Pending'</span>) <span class="kw">AS</span> delivery
+<span class="kw">FROM</span> <span class="tbl">orders</span>;</div>
+<div class="analogy-box">📦 Like a form where someone skipped the "delivery address" field — the value isn't wrong, it's just missing. NULL represents exactly that.</div>`,
+        schema:["orders"],
+        challenges:[
+          {label:"IS NULL",title:"Find undelivered orders",desc:"Find all orders where delivery_date is NULL (not yet delivered).",xp:40,hint:"SELECT * FROM orders WHERE delivery_date IS NULL",solution:"SELECT * FROM orders WHERE delivery_date IS NULL;",validate:(r)=>r&&r.length>=3},
+          {label:"IS NOT NULL",title:"Orders that have been delivered",desc:"Find orders where delivery_date is NOT NULL.",xp:35,hint:"SELECT * FROM orders WHERE delivery_date IS NOT NULL",solution:"SELECT * FROM orders WHERE delivery_date IS NOT NULL;",validate:(r)=>r&&r.length>5},
+          {label:"COALESCE",title:"Show delivery status with fallback",desc:"Show order id and delivery_date. Where delivery_date is NULL, show 'Pending' instead using COALESCE.",xp:55,hint:"SELECT id, COALESCE(delivery_date, 'Pending') AS delivery_status FROM orders",solution:"SELECT id, COALESCE(delivery_date, 'Pending') AS delivery_status FROM orders;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('delivery_status')}
+        ]
+      }
+    ]
+  },
+  {
+    name:"📊 Aggregation", icon:"📊",
+    lessons:[
+      {
+        title:"ORDER BY & LIMIT",
+        sub:"Sort and paginate results",
+        diff:"easy",xp:35,
+        tags:["concept","interview"],
+        theory:`<p><strong>ORDER BY</strong> sorts results. Default is ascending (ASC). Use <code>DESC</code> for descending.</p>
+<p><strong>LIMIT</strong> restricts how many rows you get back — critical for performance in real systems.</p>
+<div class="syntax-box"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">products</span>
+<span class="kw">ORDER BY</span> <span class="col">price</span> <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> 5;
+
+<span class="cmt">-- Sort by multiple columns</span>
+<span class="kw">ORDER BY</span> <span class="col">rating</span> <span class="kw">DESC</span>, <span class="col">price</span> <span class="kw">ASC</span></div>
+<div class="analogy-box">🏆 ORDER BY is "Sort by Price: High to Low" on Flipkart. LIMIT is "show 20 per page".</div>`,
+        schema:["products","orders"],
+        challenges:[
+          {label:"Top 5",title:"Top 5 most expensive products",desc:"Get the 5 priciest products, sorted by price descending.",xp:35,hint:"SELECT * FROM products ORDER BY price DESC LIMIT 5",solution:"SELECT * FROM products ORDER BY price DESC LIMIT 5;",validate:(r)=>r&&r.length===5},
+          {label:"Lowest Rated",title:"Bottom 3 rated products",desc:"Find the 3 products with the lowest rating.",xp:35,hint:"SELECT name, rating FROM products ORDER BY rating ASC LIMIT 3",solution:"SELECT name, rating FROM products ORDER BY rating ASC LIMIT 3;",validate:(r)=>r&&r.length===3},
+          {label:"Multi Sort",title:"Products sorted by rating then price",desc:"Sort products by rating DESC, and for same rating, by price ASC.",xp:45,hint:"SELECT name, rating, price FROM products ORDER BY rating DESC, price ASC",solution:"SELECT name, rating, price FROM products ORDER BY rating DESC, price ASC;",validate:(r)=>r&&r.length>5}
+        ]
+      },
+      {
+        title:"Aggregate Functions",
+        sub:"COUNT, SUM, AVG, MAX, MIN",
+        diff:"medium",xp:50,
+        tags:["concept","interview"],
+        theory:`<p>Aggregate functions compute a single result from multiple rows:</p>
+<p>• <code>COUNT(*)</code> — number of rows &nbsp; • <code>SUM(col)</code> — total &nbsp; • <code>AVG(col)</code> — average<br>• <code>MAX(col)</code> — highest value &nbsp; • <code>MIN(col)</code> — lowest value</p>
+<div class="syntax-box"><span class="kw">SELECT</span>
+  <span class="fn">COUNT</span>(*) <span class="kw">AS</span> total_products,
+  <span class="fn">AVG</span>(<span class="col">price</span>) <span class="kw">AS</span> avg_price,
+  <span class="fn">MAX</span>(<span class="col">price</span>) <span class="kw">AS</span> max_price,
+  <span class="fn">MIN</span>(<span class="col">price</span>) <span class="kw">AS</span> min_price,
+  <span class="fn">SUM</span>(<span class="col">stock</span>) <span class="kw">AS</span> total_stock
+<span class="kw">FROM</span> <span class="tbl">products</span>;</div>
+<div class="analogy-box">📊 These are like Excel's =SUM(), =AVERAGE(), =MAX() — but running on millions of rows instantly.</div>`,
+        schema:["products","orders","order_items"],
+        challenges:[
+          {label:"Stats",title:"Product catalog statistics",desc:"Get total products count, average price, max price, and min price from products.",xp:45,hint:"SELECT COUNT(*) AS total, AVG(price) AS avg_price, MAX(price) AS max_price, MIN(price) AS min_price FROM products",solution:"SELECT COUNT(*) AS total, AVG(price) AS avg_price, MAX(price) AS max_price, MIN(price) AS min_price FROM products;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('avg_price')},
+          {label:"Revenue",title:"Calculate total revenue from order items",desc:"Sum up (quantity * unit_price) as total_revenue from order_items.",xp:55,hint:"SELECT SUM(quantity * unit_price) AS total_revenue FROM order_items",solution:"SELECT SUM(quantity * unit_price) AS total_revenue FROM order_items;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('total_revenue')},
+          {label:"Premium",title:"Count premium vs non-premium customers",desc:"Count total customers and how many are premium (is_premium=1) using SUM.",xp:55,hint:"SELECT COUNT(*) AS total, SUM(is_premium) AS premium_count FROM customers",solution:"SELECT COUNT(*) AS total, SUM(is_premium) AS premium_count FROM customers;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('premium_count')}
+        ]
+      },
+      {
+        title:"GROUP BY",
+        sub:"Aggregate by category/group",
+        diff:"medium",xp:60,
+        tags:["concept","interview"],
+        theory:`<p><strong>GROUP BY</strong> splits rows into groups and lets you aggregate each group separately. It's one of the most important clauses in analytics SQL.</p>
+<div class="syntax-box"><span class="kw">SELECT</span> <span class="col">city</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> customer_count
+<span class="kw">FROM</span> <span class="tbl">customers</span>
+<span class="kw">GROUP BY</span> <span class="col">city</span>
+<span class="kw">ORDER BY</span> customer_count <span class="kw">DESC</span>;</div>
+<p>Rule: Every column in SELECT must either be in GROUP BY or wrapped in an aggregate function.</p>
+<div class="analogy-box">📦 Like grouping your order history by month — "Jan: 3 orders, Feb: 5 orders". GROUP BY does this automatically.</div>`,
+        schema:["customers","products","orders"],
+        challenges:[
+          {label:"By City",title:"Count customers per city",desc:"Count how many customers are in each city. Order by count descending.",xp:50,hint:"SELECT city, COUNT(*) AS total FROM customers GROUP BY city ORDER BY total DESC",solution:"SELECT city, COUNT(*) AS total FROM customers GROUP BY city ORDER BY total DESC;",validate:(r)=>r&&r.length>4},
+          {label:"By Status",title:"Count orders by status",desc:"How many orders are in each status (Delivered, Shipped, etc.)?",xp:50,hint:"SELECT status, COUNT(*) AS total FROM orders GROUP BY status",solution:"SELECT status, COUNT(*) AS total FROM orders GROUP BY status;",validate:(r)=>r&&r.length>=3},
+          {label:"Revenue",title:"Total revenue per product",desc:"For each product_id in order_items, calculate total revenue (SUM of quantity * unit_price).",xp:65,hint:"SELECT product_id, SUM(quantity * unit_price) AS revenue FROM order_items GROUP BY product_id ORDER BY revenue DESC",solution:"SELECT product_id, SUM(quantity * unit_price) AS revenue FROM order_items GROUP BY product_id ORDER BY revenue DESC;",validate:(r)=>r&&r.length>5}
+        ]
+      },
+      {
+        title:"HAVING — Filter Groups",
+        sub:"WHERE for aggregated results",
+        diff:"medium",xp:60,
+        tags:["concept","interview"],
+        theory:`<p><strong>HAVING</strong> filters groups after aggregation. Use WHERE to filter rows BEFORE grouping, use HAVING to filter AFTER grouping.</p>
+<div class="syntax-box"><span class="cmt">-- WHERE = before aggregation (filters rows)</span>
+<span class="cmt">-- HAVING = after aggregation (filters groups)</span>
+
+<span class="kw">SELECT</span> <span class="col">city</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> cnt
+<span class="kw">FROM</span> <span class="tbl">customers</span>
+<span class="kw">WHERE</span> <span class="col">is_premium</span> = 1        <span class="cmt">-- filter rows first</span>
+<span class="kw">GROUP BY</span> <span class="col">city</span>
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(*) >= 2         <span class="cmt">-- then filter groups</span>
+<span class="kw">ORDER BY</span> cnt <span class="kw">DESC</span>;</div>
+<div class="analogy-box">🎯 WHERE is the entrance filter (who gets in). HAVING is the exit filter (which groups pass the final check).</div>`,
+        schema:["customers","products","order_items"],
+        challenges:[
+          {label:"HAVING",title:"Cities with more than 1 customer",desc:"Group customers by city and show only cities with more than 1 customer.",xp:55,hint:"SELECT city, COUNT(*) AS cnt FROM customers GROUP BY city HAVING COUNT(*) > 1",solution:"SELECT city, COUNT(*) AS cnt FROM customers GROUP BY city HAVING COUNT(*) > 1;",validate:(r)=>r&&r.length>0},
+          {label:"WHERE+HAVING",title:"High-revenue products among active ones",desc:"From order_items, find products (product_id) with total revenue > 5000. Only include orders where discount = 0.",xp:70,hint:"SELECT product_id, SUM(quantity * unit_price) AS revenue FROM order_items WHERE discount = 0 GROUP BY product_id HAVING SUM(quantity * unit_price) > 5000",solution:"SELECT product_id, SUM(quantity * unit_price) AS revenue FROM order_items WHERE discount = 0 GROUP BY product_id HAVING SUM(quantity * unit_price) > 5000;",validate:(r)=>r&&r.length>0}
+        ]
+      }
+    ]
+  },
+  {
+    name:"🔗 JOINs", icon:"🔗",
+    lessons:[
+      {
+        title:"INNER JOIN",
+        sub:"Combine matching rows from two tables",
+        diff:"medium",xp:70,
+        tags:["concept","interview"],
+        theory:`<p><strong>INNER JOIN</strong> returns only rows where there's a matching value in BOTH tables. Non-matching rows are excluded.</p>
+<div class="syntax-box"><span class="kw">SELECT</span> <span class="tbl">customers</span>.<span class="col">name</span>, <span class="tbl">orders</span>.<span class="col">id</span>, <span class="tbl">orders</span>.<span class="col">status</span>
+<span class="kw">FROM</span> <span class="tbl">orders</span>
+<span class="kw">INNER JOIN</span> <span class="tbl">customers</span>
+  <span class="kw">ON</span> <span class="tbl">orders</span>.<span class="col">customer_id</span> = <span class="tbl">customers</span>.<span class="col">id</span>;</div>
+<p>Use table aliases to keep queries clean:</p>
+<div class="syntax-box"><span class="kw">FROM</span> <span class="tbl">orders</span> <span class="kw">AS</span> o
+<span class="kw">INNER JOIN</span> <span class="tbl">customers</span> <span class="kw">AS</span> c <span class="kw">ON</span> o.<span class="col">customer_id</span> = c.<span class="col">id</span></div>
+<div class="analogy-box">🔗 Like stapling two papers together wherever the customer_id matches — you get one combined record per match.</div>`,
+        schema:["customers","orders","products"],
+        challenges:[
+          {label:"Basic JOIN",title:"Orders with customer names",desc:"Show order id, customer name, order date, and status. Join orders with customers.",xp:60,hint:"SELECT o.id, c.name, o.order_date, o.status FROM orders o INNER JOIN customers c ON o.customer_id = c.id",solution:"SELECT o.id, c.name, o.order_date, o.status FROM orders o INNER JOIN customers c ON o.customer_id = c.id;",validate:(r)=>r&&r.length>5&&r[0].hasOwnProperty('name')},
+          {label:"3 Table JOIN",title:"Order items with product names",desc:"Join order_items with products to show order_id, product name, quantity, and unit_price.",xp:75,hint:"SELECT oi.order_id, p.name, oi.quantity, oi.unit_price FROM order_items oi INNER JOIN products p ON oi.product_id = p.id",solution:"SELECT oi.order_id, p.name, oi.quantity, oi.unit_price FROM order_items oi INNER JOIN products p ON oi.product_id = p.id;",validate:(r)=>r&&r.length>10&&r[0].hasOwnProperty('name')&&r[0].hasOwnProperty('quantity')},
+          {label:"Aggregated JOIN",title:"Total spent per customer",desc:"Join orders and order_items to find total spent by each customer. Show customer_id and total_spent.",xp:80,hint:"SELECT o.customer_id, SUM(oi.quantity * oi.unit_price) AS total_spent FROM orders o INNER JOIN order_items oi ON o.id = oi.order_id GROUP BY o.customer_id ORDER BY total_spent DESC",solution:"SELECT o.customer_id, SUM(oi.quantity * oi.unit_price) AS total_spent FROM orders o INNER JOIN order_items oi ON o.id = oi.order_id GROUP BY o.customer_id ORDER BY total_spent DESC;",validate:(r)=>r&&r.length>5&&r[0].hasOwnProperty('total_spent')}
+        ]
+      },
+      {
+        title:"LEFT JOIN",
+        sub:"Keep all rows from the left table",
+        diff:"medium",xp:75,
+        tags:["concept","interview"],
+        theory:`<p><strong>LEFT JOIN</strong> returns ALL rows from the left table, and matching rows from the right. Where there's no match, NULLs appear for right table columns.</p>
+<div class="syntax-box"><span class="kw">SELECT</span> c.<span class="col">name</span>, o.<span class="col">id</span> <span class="kw">AS</span> order_id
+<span class="kw">FROM</span> <span class="tbl">customers</span> c
+<span class="kw">LEFT JOIN</span> <span class="tbl">orders</span> o <span class="kw">ON</span> c.<span class="col">id</span> = o.<span class="col">customer_id</span>;</div>
+<p>Classic use: find customers who have NEVER placed an order:</p>
+<div class="syntax-box"><span class="kw">WHERE</span> o.<span class="col">id</span> <span class="kw">IS NULL</span></div>
+<div class="analogy-box">⬅️ LEFT JOIN is like "list all students, and if they submitted homework, show that too — but don't exclude students who didn't submit."</div>`,
+        schema:["customers","orders"],
+        challenges:[
+          {label:"LEFT JOIN",title:"All customers with their order count",desc:"Show every customer name and how many orders they've placed (0 if none). Use LEFT JOIN and COUNT.",xp:70,hint:"SELECT c.name, COUNT(o.id) AS order_count FROM customers c LEFT JOIN orders o ON c.id = o.customer_id GROUP BY c.id, c.name ORDER BY order_count DESC",solution:"SELECT c.name, COUNT(o.id) AS order_count FROM customers c LEFT JOIN orders o ON c.id = o.customer_id GROUP BY c.id, c.name ORDER BY order_count DESC;",validate:(r)=>r&&r.length>=10&&r[0].hasOwnProperty('order_count')},
+          {label:"Find Missing",title:"Find customers who never ordered",desc:"Use LEFT JOIN to find customers with no orders (WHERE orders.id IS NULL).",xp:75,hint:"SELECT c.name, c.email FROM customers c LEFT JOIN orders o ON c.id = o.customer_id WHERE o.id IS NULL",solution:"SELECT c.name, c.email FROM customers c LEFT JOIN orders o ON c.id = o.customer_id WHERE o.id IS NULL;",validate:(r)=>r&&r.length>0}
+        ]
+      },
+      {
+        title:"Multi-Table JOINs",
+        sub:"Chain 3+ tables together",
+        diff:"hard",xp:90,
+        tags:["concept","interview"],
+        theory:`<p>Real queries often JOIN 3 or more tables. Chain them one after another:</p>
+<div class="syntax-box"><span class="kw">SELECT</span> c.<span class="col">name</span>, p.<span class="col">name</span> <span class="kw">AS</span> product, oi.<span class="col">quantity</span>
+<span class="kw">FROM</span> <span class="tbl">orders</span> o
+<span class="kw">JOIN</span> <span class="tbl">customers</span> c <span class="kw">ON</span> o.<span class="col">customer_id</span> = c.<span class="col">id</span>
+<span class="kw">JOIN</span> <span class="tbl">order_items</span> oi <span class="kw">ON</span> o.<span class="col">id</span> = oi.<span class="col">order_id</span>
+<span class="kw">JOIN</span> <span class="tbl">products</span> p <span class="kw">ON</span> oi.<span class="col">product_id</span> = p.<span class="col">id</span>;</div>
+<div class="analogy-box">🔗🔗🔗 Think of it as a chain: Customer → Order → OrderItem → Product. Each JOIN adds one more link.</div>`,
+        schema:["customers","orders","order_items","products"],
+        challenges:[
+          {label:"4-Table",title:"Full order history with all details",desc:"Join customers, orders, order_items, and products. Show customer name, product name, quantity, and unit_price.",xp:90,hint:"SELECT c.name AS customer, p.name AS product, oi.quantity, oi.unit_price FROM orders o JOIN customers c ON o.customer_id = c.id JOIN order_items oi ON o.id = oi.order_id JOIN products p ON oi.product_id = p.id",solution:"SELECT c.name AS customer, p.name AS product, oi.quantity, oi.unit_price FROM orders o JOIN customers c ON o.customer_id = c.id JOIN order_items oi ON o.id = oi.order_id JOIN products p ON oi.product_id = p.id;",validate:(r)=>r&&r.length>10&&r[0].hasOwnProperty('customer')&&r[0].hasOwnProperty('product')},
+          {label:"Analytics",title:"Top customers by total spend",desc:"Using the 4-table join above, group by customer name and show total spend. Order by spend descending.",xp:100,hint:"SELECT c.name, SUM(oi.quantity * oi.unit_price) AS total_spend FROM orders o JOIN customers c ON o.customer_id = c.id JOIN order_items oi ON o.id = oi.order_id GROUP BY c.id, c.name ORDER BY total_spend DESC",solution:"SELECT c.name, SUM(oi.quantity * oi.unit_price) AS total_spend FROM orders o JOIN customers c ON o.customer_id = c.id JOIN order_items oi ON o.id = oi.order_id GROUP BY c.id, c.name ORDER BY total_spend DESC;",validate:(r)=>r&&r.length>5&&r[0].hasOwnProperty('total_spend')}
+        ]
+      },
+      {
+        title:"SELF JOIN",
+        sub:"Join a table with itself",
+        diff:"hard",xp:90,
+        tags:["concept","interview"],
+        theory:`<p>A <strong>SELF JOIN</strong> joins a table to itself. Useful for hierarchical data like employees and managers, or comparing rows in the same table.</p>
+<div class="syntax-box"><span class="cmt">-- Employee and their manager</span>
+<span class="kw">SELECT</span> e.<span class="col">name</span> <span class="kw">AS</span> employee, m.<span class="col">name</span> <span class="kw">AS</span> manager
+<span class="kw">FROM</span> <span class="tbl">employees</span> e
+<span class="kw">LEFT JOIN</span> <span class="tbl">employees</span> m <span class="kw">ON</span> e.<span class="col">manager_id</span> = m.<span class="col">id</span>;</div>
+<div class="analogy-box">🪞 A mirror join — you use the SAME table twice with different aliases, like looking at two different rows side-by-side.</div>`,
+        schema:["employees"],
+        challenges:[
+          {label:"Self JOIN",title:"Show each employee with their manager's name",desc:"Use a SELF JOIN on the employees table. Show employee name, their department, and their manager's name.",xp:85,hint:"SELECT e.name AS employee, e.department, m.name AS manager FROM employees e LEFT JOIN employees m ON e.manager_id = m.id",solution:"SELECT e.name AS employee, e.department, m.name AS manager FROM employees e LEFT JOIN employees m ON e.manager_id = m.id;",validate:(r)=>r&&r.length>=8&&r[0].hasOwnProperty('manager')}
+        ]
+      }
+    ]
+  },
+  {
+    name:"🪆 Subqueries", icon:"🪆",
+    lessons:[
+      {
+        title:"Subquery Basics",
+        sub:"Queries inside queries",
+        diff:"hard",xp:80,
+        tags:["concept","interview"],
+        theory:`<p>A <strong>subquery</strong> (or inner query) is a SQL query nested inside another query. The inner query runs first, and its result is used by the outer query.</p>
+<div class="syntax-box"><span class="cmt">-- Find products more expensive than average</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">products</span>
+<span class="kw">WHERE</span> price > (<span class="kw">SELECT</span> <span class="fn">AVG</span>(price) <span class="kw">FROM</span> <span class="tbl">products</span>);</div>
+<div class="analogy-box">🪆 Like Russian dolls — the inner query is a small doll that produces a value, and the outer query uses that value to answer the bigger question.</div>`,
+        schema:["products","customers","orders"],
+        challenges:[
+          {label:"Scalar",title:"Products above average price",desc:"Find all products priced above the average product price.",xp:70,hint:"SELECT * FROM products WHERE price > (SELECT AVG(price) FROM products)",solution:"SELECT * FROM products WHERE price > (SELECT AVG(price) FROM products);",validate:(r)=>r&&r.length>0},
+          {label:"IN Subquery",title:"Customers who placed orders",desc:"Find all customers who have at least one order, using a subquery with IN.",xp:80,hint:"SELECT * FROM customers WHERE id IN (SELECT DISTINCT customer_id FROM orders)",solution:"SELECT * FROM customers WHERE id IN (SELECT DISTINCT customer_id FROM orders);",validate:(r)=>r&&r.length>5},
+          {label:"NOT IN",title:"Customers who never ordered",desc:"Find customers whose id is NOT IN the orders customer_id list.",xp:80,hint:"SELECT * FROM customers WHERE id NOT IN (SELECT DISTINCT customer_id FROM orders)",solution:"SELECT * FROM customers WHERE id NOT IN (SELECT DISTINCT customer_id FROM orders);",validate:(r)=>r&&r.length>0}
+        ]
+      },
+      {
+        title:"Correlated Subqueries",
+        sub:"Subqueries that reference outer query",
+        diff:"hard",xp:95,
+        tags:["concept","interview"],
+        theory:`<p>A <strong>correlated subquery</strong> references a column from the outer query. It runs once for each row of the outer query.</p>
+<div class="syntax-box"><span class="cmt">-- Find each customer's most recent order</span>
+<span class="kw">SELECT</span> c.<span class="col">name</span>, c.<span class="col">city</span>,
+  (<span class="kw">SELECT</span> <span class="fn">MAX</span>(o2.<span class="col">order_date</span>)
+   <span class="kw">FROM</span> <span class="tbl">orders</span> o2
+   <span class="kw">WHERE</span> o2.<span class="col">customer_id</span> = c.<span class="col">id</span>) <span class="kw">AS</span> last_order
+<span class="kw">FROM</span> <span class="tbl">customers</span> c;</div>
+<div class="analogy-box">🔄 A correlated subquery is like asking, for EACH employee: "what's the average salary in YOUR department?" — the subquery changes per row.</div>`,
+        schema:["customers","orders","products"],
+        challenges:[
+          {label:"Correlated",title:"Each customer's last order date",desc:"For each customer, show their name and most recent order date using a correlated subquery.",xp:90,hint:"SELECT c.name, (SELECT MAX(o.order_date) FROM orders o WHERE o.customer_id = c.id) AS last_order FROM customers c",solution:"SELECT c.name, (SELECT MAX(o.order_date) FROM orders o WHERE o.customer_id = c.id) AS last_order FROM customers c;",validate:(r)=>r&&r.length>=10&&r[0].hasOwnProperty('last_order')},
+          {label:"EXISTS",title:"Customers who reviewed a product",desc:"Find all customers who have written at least one review, using EXISTS.",xp:95,hint:"SELECT c.name FROM customers c WHERE EXISTS (SELECT 1 FROM reviews r WHERE r.customer_id = c.id)",solution:"SELECT c.name FROM customers c WHERE EXISTS (SELECT 1 FROM reviews r WHERE r.customer_id = c.id);",validate:(r)=>r&&r.length>0}
+        ]
+      },
+      {
+        title:"CTEs — WITH Clause",
+        sub:"Named temporary result sets",
+        diff:"hard",xp:100,
+        tags:["concept","interview"],
+        theory:`<p><strong>CTEs (Common Table Expressions)</strong> let you write a subquery once, give it a name, and reuse it. They make complex queries much more readable.</p>
+<div class="syntax-box"><span class="kw">WITH</span> monthly_revenue <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> <span class="col">order_id</span>,
+    <span class="fn">SUM</span>(<span class="col">quantity</span> * <span class="col">unit_price</span>) <span class="kw">AS</span> revenue
+  <span class="kw">FROM</span> <span class="tbl">order_items</span>
+  <span class="kw">GROUP BY</span> <span class="col">order_id</span>
+)
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> monthly_revenue
+<span class="kw">WHERE</span> revenue > 5000;</div>
+<div class="analogy-box">📝 A CTE is like creating a "temp variable" for a table — you calculate it once, name it, and refer to it cleanly in the main query.</div>`,
+        schema:["orders","order_items","customers"],
+        challenges:[
+          {label:"CTE Basic",title:"High-value orders using CTE",desc:"Write a CTE called 'order_totals' that calculates total per order. Then select orders with total > 5000.",xp:90,hint:"WITH order_totals AS (SELECT order_id, SUM(quantity * unit_price) AS total FROM order_items GROUP BY order_id) SELECT * FROM order_totals WHERE total > 5000 ORDER BY total DESC",solution:"WITH order_totals AS (SELECT order_id, SUM(quantity * unit_price) AS total FROM order_items GROUP BY order_id) SELECT * FROM order_totals WHERE total > 5000 ORDER BY total DESC;",validate:(r)=>r&&r.length>0},
+          {label:"CTE + JOIN",title:"Customer names for high-value orders",desc:"Extend the CTE to also join with orders and customers to show customer names alongside the high-value order totals.",xp:110,hint:"WITH order_totals AS (SELECT order_id, SUM(quantity * unit_price) AS total FROM order_items GROUP BY order_id) SELECT c.name, ot.total FROM order_totals ot JOIN orders o ON ot.order_id = o.id JOIN customers c ON o.customer_id = c.id WHERE ot.total > 3000 ORDER BY ot.total DESC",solution:"WITH order_totals AS (SELECT order_id, SUM(quantity * unit_price) AS total FROM order_items GROUP BY order_id) SELECT c.name, ot.total FROM order_totals ot JOIN orders o ON ot.order_id = o.id JOIN customers c ON o.customer_id = c.id WHERE ot.total > 3000 ORDER BY ot.total DESC;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('name')}
+        ]
+      }
+    ]
+  },
+  {
+    name:"🪟 Window Functions", icon:"🪟",
+    lessons:[
+      {
+        title:"ROW_NUMBER, RANK, DENSE_RANK",
+        sub:"Ranking rows within groups",
+        diff:"hard",xp:100,
+        tags:["concept","interview"],
+        theory:`<p><strong>Window functions</strong> compute values across rows related to the current row without collapsing them into groups. The <code>OVER()</code> clause defines the "window".</p>
+<div class="syntax-box"><span class="kw">SELECT</span> <span class="col">name</span>, <span class="col">price</span>,
+  <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> price <span class="kw">DESC</span>) <span class="kw">AS</span> row_num,
+  <span class="fn">RANK</span>() <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> price <span class="kw">DESC</span>) <span class="kw">AS</span> rank_pos,
+  <span class="fn">DENSE_RANK</span>() <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> price <span class="kw">DESC</span>) <span class="kw">AS</span> dense_rank_pos
+<span class="kw">FROM</span> <span class="tbl">products</span>;</div>
+<p>Difference: RANK skips numbers after ties (1,2,2,4). DENSE_RANK doesn't skip (1,2,2,3).</p>
+<div class="analogy-box">🏆 Like Olympic rankings — gold=1, two silvers=2,2, then bronze could be 3 (DENSE_RANK) or 4 (RANK).</div>`,
+        schema:["products","employees"],
+        challenges:[
+          {label:"Ranking",title:"Rank all products by price",desc:"Show product name, price, and their RANK() ordered by price descending.",xp:90,hint:"SELECT name, price, RANK() OVER (ORDER BY price DESC) AS price_rank FROM products",solution:"SELECT name, price, RANK() OVER (ORDER BY price DESC) AS price_rank FROM products;",validate:(r)=>r&&r.length>5&&r[0].hasOwnProperty('price_rank')},
+          {label:"PARTITION",title:"Rank employees by salary within department",desc:"Use DENSE_RANK() with PARTITION BY department to rank employees by salary within each department.",xp:110,hint:"SELECT name, department, salary, DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_rank FROM employees",solution:"SELECT name, department, salary, DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_rank FROM employees;",validate:(r)=>r&&r.length>=8&&r[0].hasOwnProperty('dept_rank')}
+        ]
+      },
+      {
+        title:"LAG and LEAD",
+        sub:"Access previous and next rows",
+        diff:"hard",xp:100,
+        tags:["concept","interview"],
+        theory:`<p><strong>LAG()</strong> accesses data from a previous row. <strong>LEAD()</strong> accesses data from a following row. Critical for time-series analysis.</p>
+<div class="syntax-box"><span class="kw">SELECT</span> <span class="col">order_date</span>,
+  <span class="fn">LAG</span>(<span class="col">order_date</span>) <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> <span class="col">order_date</span>) <span class="kw">AS</span> prev_date,
+  <span class="fn">LEAD</span>(<span class="col">order_date</span>) <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> <span class="col">order_date</span>) <span class="kw">AS</span> next_date
+<span class="kw">FROM</span> <span class="tbl">orders</span>;</div>
+<div class="analogy-box">⏩ LAG is "what was yesterday's value?" LEAD is "what is tomorrow's value?" Perfect for detecting trends and changes over time.</div>`,
+        schema:["orders","employees"],
+        challenges:[
+          {label:"LAG",title:"Compare each employee's salary to previous",desc:"Show employee name, salary, and the previous employee's salary (ordered by salary ASC) using LAG.",xp:95,hint:"SELECT name, salary, LAG(salary) OVER (ORDER BY salary) AS prev_salary FROM employees",solution:"SELECT name, salary, LAG(salary) OVER (ORDER BY salary) AS prev_salary FROM employees;",validate:(r)=>r&&r.length>=8&&r[0].hasOwnProperty('prev_salary')},
+          {label:"Diff",title:"Salary difference from previous employee",desc:"Show name, salary, and (salary - LAG(salary)) as salary_diff.",xp:105,hint:"SELECT name, salary, salary - LAG(salary) OVER (ORDER BY salary) AS salary_diff FROM employees",solution:"SELECT name, salary, salary - LAG(salary,1,0) OVER (ORDER BY salary) AS salary_diff FROM employees;",validate:(r)=>r&&r.length>=8&&r[0].hasOwnProperty('salary_diff')}
+        ]
+      },
+      {
+        title:"SUM/AVG OVER — Running Totals",
+        sub:"Cumulative calculations",
+        diff:"hard",xp:105,
+        tags:["concept","interview"],
+        theory:`<p>Using aggregate functions as window functions lets you compute <strong>running totals</strong>, <strong>moving averages</strong>, and <strong>cumulative sums</strong>.</p>
+<div class="syntax-box"><span class="cmt">-- Running total of salaries</span>
+<span class="kw">SELECT</span> <span class="col">name</span>, <span class="col">salary</span>,
+  <span class="fn">SUM</span>(<span class="col">salary</span>) <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> <span class="col">salary</span>) <span class="kw">AS</span> running_total
+
+<span class="cmt">-- Average salary in same department</span>
+<span class="fn">AVG</span>(<span class="col">salary</span>) <span class="kw">OVER</span>(<span class="kw">PARTITION BY</span> <span class="col">department</span>) <span class="kw">AS</span> dept_avg</div>
+<div class="analogy-box">📈 Running total is like a bank statement — each row shows "total so far". Moving average smooths out data trends over time.</div>`,
+        schema:["employees","order_items"],
+        challenges:[
+          {label:"Running Total",title:"Cumulative salary by hire date",desc:"Show employee name, hire_date, salary, and a running total of salary ordered by hire_date.",xp:95,hint:"SELECT name, hire_date, salary, SUM(salary) OVER (ORDER BY hire_date) AS running_total FROM employees",solution:"SELECT name, hire_date, salary, SUM(salary) OVER (ORDER BY hire_date) AS running_total FROM employees;",validate:(r)=>r&&r.length>=8&&r[0].hasOwnProperty('running_total')},
+          {label:"Dept Avg",title:"Employee salary vs department average",desc:"Show name, department, salary, and AVG(salary) OVER(PARTITION BY department) as dept_avg.",xp:105,hint:"SELECT name, department, salary, AVG(salary) OVER (PARTITION BY department) AS dept_avg FROM employees",solution:"SELECT name, department, salary, ROUND(AVG(salary) OVER (PARTITION BY department),2) AS dept_avg FROM employees;",validate:(r)=>r&&r.length>=8&&r[0].hasOwnProperty('dept_avg')}
+        ]
+      },
+      {
+        title:"NTILE & PERCENT_RANK",
+        sub:"Percentiles and buckets",
+        diff:"expert",xp:115,
+        tags:["concept","interview"],
+        theory:`<p><strong>NTILE(n)</strong> divides rows into n equal buckets (quartiles, deciles, etc.). <strong>PERCENT_RANK()</strong> gives position as a percentage from 0 to 1.</p>
+<div class="syntax-box"><span class="cmt">-- Divide products into 4 price quartiles</span>
+<span class="kw">SELECT</span> <span class="col">name</span>, <span class="col">price</span>,
+  <span class="fn">NTILE</span>(4) <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> <span class="col">price</span>) <span class="kw">AS</span> quartile,
+  <span class="fn">PERCENT_RANK</span>() <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> <span class="col">price</span>) <span class="kw">AS</span> pct_rank
+<span class="kw">FROM</span> <span class="tbl">products</span>;</div>
+<div class="analogy-box">📊 Like grading on a curve — NTILE(4) puts everyone in Q1, Q2, Q3, or Q4 (quartiles). PERCENT_RANK tells you what percentile you're in.</div>`,
+        schema:["products","employees"],
+        challenges:[
+          {label:"NTILE",title:"Categorize products into 4 price buckets",desc:"Use NTILE(4) to divide products into price quartiles. Show name, price, and quartile.",xp:100,hint:"SELECT name, price, NTILE(4) OVER (ORDER BY price) AS price_quartile FROM products WHERE is_active = 1",solution:"SELECT name, price, NTILE(4) OVER (ORDER BY price) AS price_quartile FROM products WHERE is_active = 1;",validate:(r)=>r&&r.length>5&&r[0].hasOwnProperty('price_quartile')}
+        ]
+      }
+    ]
+  },
+  {
+    name:"⚡ Advanced SQL", icon:"⚡",
+    lessons:[
+      {
+        title:"String Functions",
+        sub:"UPPER, LOWER, SUBSTR, LENGTH, REPLACE",
+        diff:"medium",xp:60,
+        tags:["concept"],
+        theory:`<p>SQL has many built-in string manipulation functions:</p>
+<div class="syntax-box"><span class="fn">UPPER</span>(<span class="str">'hello'</span>)        → <span class="str">'HELLO'</span>
+<span class="fn">LOWER</span>(<span class="str">'HELLO'</span>)        → <span class="str">'hello'</span>
+<span class="fn">LENGTH</span>(<span class="str">'hello'</span>)       → <span class="num">5</span>
+<span class="fn">SUBSTR</span>(<span class="str">'hello'</span>,<span class="num">2</span>,<span class="num">3</span>)  → <span class="str">'ell'</span>
+<span class="fn">REPLACE</span>(<span class="str">'a,b'</span>,<span class="str">','</span>,<span class="str">' '</span>) → <span class="str">'a b'</span>
+<span class="fn">TRIM</span>(<span class="str">'  hi  '</span>)       → <span class="str">'hi'</span></div>`,
+        schema:["customers","products"],
+        challenges:[
+          {label:"UPPER/LOWER",title:"Show all customer names in uppercase",desc:"Select customer names converted to uppercase using UPPER().",xp:45,hint:"SELECT UPPER(name) AS name_upper FROM customers",solution:"SELECT UPPER(name) AS name_upper, email FROM customers;",validate:(r)=>r&&r.length>5&&r[0].hasOwnProperty('name_upper')},
+          {label:"LENGTH",title:"Find customers with long names",desc:"Show customer name and name length. Filter to names with 12+ characters.",xp:55,hint:"SELECT name, LENGTH(name) AS name_length FROM customers WHERE LENGTH(name) >= 12",solution:"SELECT name, LENGTH(name) AS name_length FROM customers WHERE LENGTH(name) >= 12;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('name_length')}
+        ]
+      },
+      {
+        title:"Date Functions",
+        sub:"Extract, format and compare dates",
+        diff:"medium",xp:70,
+        tags:["concept","interview"],
+        theory:`<p>Date manipulation is critical in analytics — monthly reports, retention, cohort analysis all require it.</p>
+<div class="syntax-box"><span class="cmt">-- In SQLite:</span>
+<span class="fn">strftime</span>(<span class="str">'%Y-%m'</span>, <span class="col">order_date</span>)  <span class="cmt">→ '2024-01'</span>
+<span class="fn">strftime</span>(<span class="str">'%Y'</span>, <span class="col">order_date</span>)     <span class="cmt">→ '2024'</span>
+<span class="fn">strftime</span>(<span class="str">'%m'</span>, <span class="col">order_date</span>)     <span class="cmt">→ '03'</span>
+<span class="fn">date</span>(<span class="str">'now'</span>)                   <span class="cmt">→ current date</span>
+<span class="fn">julianday</span>(<span class="col">delivery_date</span>) - <span class="fn">julianday</span>(<span class="col">order_date</span>) <span class="cmt">→ days between</span></div>`,
+        schema:["orders"],
+        challenges:[
+          {label:"Monthly",title:"Count orders per month",desc:"Group orders by month (format: YYYY-MM) and count them.",xp:65,hint:"SELECT strftime('%Y-%m', order_date) AS month, COUNT(*) AS orders FROM orders GROUP BY month ORDER BY month",solution:"SELECT strftime('%Y-%m', order_date) AS month, COUNT(*) AS orders FROM orders GROUP BY month ORDER BY month;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('month')},
+          {label:"Delivery Time",title:"Calculate delivery time per order",desc:"For delivered orders, calculate days between order_date and delivery_date.",xp:75,hint:"SELECT id, order_date, delivery_date, ROUND(julianday(delivery_date) - julianday(order_date)) AS days_to_deliver FROM orders WHERE delivery_date IS NOT NULL",solution:"SELECT id, order_date, delivery_date, ROUND(julianday(delivery_date) - julianday(order_date)) AS days_to_deliver FROM orders WHERE delivery_date IS NOT NULL;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('days_to_deliver')}
+        ]
+      },
+      {
+        title:"CASE WHEN — Conditional Logic",
+        sub:"IF-ELSE inside SQL",
+        diff:"medium",xp:75,
+        tags:["concept","interview"],
+        theory:`<p><strong>CASE WHEN</strong> lets you add conditional logic directly inside SQL — like IF-ELSE in programming.</p>
+<div class="syntax-box"><span class="kw">SELECT</span> <span class="col">name</span>, <span class="col">price</span>,
+  <span class="kw">CASE</span>
+    <span class="kw">WHEN</span> price < 500  <span class="kw">THEN</span> <span class="str">'Budget'</span>
+    <span class="kw">WHEN</span> price < 5000 <span class="kw">THEN</span> <span class="str">'Mid-Range'</span>
+    <span class="kw">WHEN</span> price < 20000 <span class="kw">THEN</span> <span class="str">'Premium'</span>
+    <span class="kw">ELSE</span> <span class="str">'Luxury'</span>
+  <span class="kw">END</span> <span class="kw">AS</span> price_segment
+<span class="kw">FROM</span> <span class="tbl">products</span>;</div>
+<div class="analogy-box">🔀 CASE WHEN is SQL's if-else. You can use it to create labels, segments, or conditional calculations inside a query.</div>`,
+        schema:["products","customers","orders"],
+        challenges:[
+          {label:"Segmentation",title:"Categorize products by price tier",desc:"Add a 'price_tier' column: Budget (<500), Mid-Range (500-5000), Premium (>5000).",xp:65,hint:"SELECT name, price, CASE WHEN price < 500 THEN 'Budget' WHEN price <= 5000 THEN 'Mid-Range' ELSE 'Premium' END AS price_tier FROM products",solution:"SELECT name, price, CASE WHEN price < 500 THEN 'Budget' WHEN price <= 5000 THEN 'Mid-Range' ELSE 'Premium' END AS price_tier FROM products;",validate:(r)=>r&&r.length>5&&r[0].hasOwnProperty('price_tier')},
+          {label:"Order Status",title:"Classify orders as active or closed",desc:"Add 'order_category': if status is Delivered='Closed', else='Active'. Show order id, status, and category.",xp:70,hint:"SELECT id, status, CASE WHEN status = 'Delivered' THEN 'Closed' ELSE 'Active' END AS order_category FROM orders",solution:"SELECT id, status, CASE WHEN status = 'Delivered' THEN 'Closed' ELSE 'Active' END AS order_category FROM orders;",validate:(r)=>r&&r.length>5&&r[0].hasOwnProperty('order_category')},
+          {label:"Conditional Agg",title:"Count orders by category",desc:"Using CASE WHEN inside COUNT, count 'Closed' vs 'Active' orders in one row.",xp:85,hint:"SELECT COUNT(CASE WHEN status = 'Delivered' THEN 1 END) AS closed, COUNT(CASE WHEN status != 'Delivered' THEN 1 END) AS active FROM orders",solution:"SELECT COUNT(CASE WHEN status = 'Delivered' THEN 1 END) AS closed, COUNT(CASE WHEN status != 'Delivered' THEN 1 END) AS active FROM orders;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('closed')&&r[0].hasOwnProperty('active')}
+        ]
+      },
+      {
+        title:"INSERT, UPDATE, DELETE",
+        sub:"Modifying data",
+        diff:"medium",xp:65,
+        tags:["concept"],
+        theory:`<p>SQL isn't just for reading — you can also add, modify, and remove data.</p>
+<div class="syntax-box"><span class="cmt">-- INSERT new row</span>
+<span class="kw">INSERT INTO</span> <span class="tbl">customers</span> (<span class="col">id</span>, <span class="col">name</span>, <span class="col">city</span>)
+<span class="kw">VALUES</span> (<span class="num">13</span>, <span class="str">'New User'</span>, <span class="str">'Pune'</span>);
+
+<span class="cmt">-- UPDATE existing rows</span>
+<span class="kw">UPDATE</span> <span class="tbl">products</span>
+<span class="kw">SET</span> <span class="col">price</span> = price * 0.9
+<span class="kw">WHERE</span> <span class="col">stock</span> > 100;
+
+<span class="cmt">-- DELETE rows</span>
+<span class="kw">DELETE FROM</span> <span class="tbl">products</span>
+<span class="kw">WHERE</span> <span class="col">is_active</span> = 0;</div>
+<div class="analogy-box">⚠️ Always use WHERE with UPDATE and DELETE! Without it, you update or delete EVERY row in the table.</div>`,
+        schema:["customers","products"],
+        challenges:[
+          {label:"INSERT",title:"Add a new customer",desc:"Insert a new customer with id=13, name='Test User', email='test@test.com', city='Pune', state='Maharashtra', age=25, gender='M', signup_date='2024-04-01', is_premium=0.",xp:55,hint:"INSERT INTO customers VALUES(13,'Test User','test@test.com','Pune','Maharashtra',25,'M','2024-04-01',0)",solution:"INSERT INTO customers VALUES(13,'Test User','test@test.com','Pune','Maharashtra',25,'M','2024-04-01',0); SELECT * FROM customers WHERE id=13;",validate:(r)=>r&&r.length>=1},
+          {label:"UPDATE",title:"Give a 10% discount to cheap products",desc:"UPDATE products to reduce price by 10% where stock > 200. Then SELECT to verify.",xp:60,hint:"UPDATE products SET price = price * 0.9 WHERE stock > 200",solution:"UPDATE products SET price = price * 0.9 WHERE stock > 200; SELECT name, price, stock FROM products WHERE stock > 200;",validate:(r)=>r&&r.length>0}
+        ]
+      },
+      {
+        title:"CREATE TABLE & Constraints",
+        sub:"Design your own schema",
+        diff:"medium",xp:70,
+        tags:["concept"],
+        theory:`<p>Creating tables is the foundation of database design. Constraints ensure data quality.</p>
+<div class="syntax-box"><span class="kw">CREATE TABLE</span> <span class="tbl">employees</span> (
+  <span class="col">id</span>         INTEGER <span class="kw">PRIMARY KEY</span>,
+  <span class="col">name</span>       TEXT <span class="kw">NOT NULL</span>,
+  <span class="col">email</span>      TEXT <span class="kw">UNIQUE</span>,
+  <span class="col">salary</span>     REAL <span class="kw">CHECK</span>(salary > 0),
+  <span class="col">dept_id</span>    INTEGER <span class="kw">DEFAULT</span> 1,
+  <span class="col">hire_date</span>  TEXT <span class="kw">DEFAULT</span> <span class="fn">CURRENT_DATE</span>,
+  <span class="kw">FOREIGN KEY</span>(<span class="col">dept_id</span>) <span class="kw">REFERENCES</span> <span class="tbl">departments</span>(<span class="col">id</span>)
+);</div>`,
+        schema:[],
+        challenges:[
+          {label:"CREATE",title:"Create a new wishlist table",desc:"Create a table called 'wishlists' with: id (PRIMARY KEY), customer_id (INTEGER), product_id (INTEGER), added_date (TEXT). Then INSERT one row and SELECT it.",xp:70,hint:"CREATE TABLE wishlists (id INTEGER PRIMARY KEY, customer_id INTEGER, product_id INTEGER, added_date TEXT)",solution:"CREATE TABLE IF NOT EXISTS wishlists (id INTEGER PRIMARY KEY, customer_id INTEGER, product_id INTEGER, added_date TEXT); INSERT INTO wishlists VALUES(1, 1, 5, '2024-04-01'); SELECT * FROM wishlists;",validate:(r)=>r&&r.length>=1}
+        ]
+      },
+      {
+        title:"UNION and UNION ALL",
+        sub:"Combine result sets",
+        diff:"medium",xp:70,
+        tags:["concept","interview"],
+        theory:`<p><strong>UNION</strong> combines results from two SELECT statements (removes duplicates). <strong>UNION ALL</strong> keeps all rows including duplicates (faster).</p>
+<div class="syntax-box"><span class="cmt">-- Customers from Mumbai OR Delhi (using UNION)</span>
+<span class="kw">SELECT</span> <span class="col">name</span>, <span class="col">city</span> <span class="kw">FROM</span> <span class="tbl">customers</span> <span class="kw">WHERE</span> <span class="col">city</span> = <span class="str">'Mumbai'</span>
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> <span class="col">name</span>, <span class="col">city</span> <span class="kw">FROM</span> <span class="tbl">customers</span> <span class="kw">WHERE</span> <span class="col">city</span> = <span class="str">'Delhi'</span>;</div>
+<p>Both queries must have the same number and types of columns.</p>
+<div class="analogy-box">➕ UNION stacks two query results vertically — like combining two sheets of paper into one list.</div>`,
+        schema:["customers","products"],
+        challenges:[
+          {label:"UNION",title:"Products that are either very cheap or very expensive",desc:"UNION two queries: products with price < 600, and products with price > 20000.",xp:65,hint:"SELECT name, price FROM products WHERE price < 600 UNION SELECT name, price FROM products WHERE price > 20000",solution:"SELECT name, price FROM products WHERE price < 600 UNION SELECT name, price FROM products WHERE price > 20000;",validate:(r)=>r&&r.length>3}
+        ]
+      }
+    ]
+  },
+  {
+    name:"🏆 Real Projects", icon:"🏆",
+    lessons:[
+      {
+        title:"Project: Sales Dashboard",
+        sub:"Build a complete analytics report",
+        diff:"expert",xp:150,
+        tags:["project","interview"],
+        theory:`<div class="project-banner"><div class="project-icon">🏪</div><div class="project-info"><h3>E-commerce Sales Dashboard</h3><p>Use everything you've learned to answer real business questions an analyst would face at Flipkart or Amazon.</p></div></div>
+<p>A data analyst's job is to answer business questions with SQL. These are the kinds of queries you'll write in your first week on the job — and that interviewers love to ask.</p>`,
+        schema:["customers","orders","order_items","products"],
+        challenges:[
+          {label:"Revenue KPI",title:"Total revenue, avg order value, total orders",desc:"In one query, show: total revenue, total orders, and average order value (revenue/orders).",xp:120,hint:"SELECT SUM(oi.quantity * oi.unit_price) AS total_revenue, COUNT(DISTINCT o.id) AS total_orders, ROUND(SUM(oi.quantity * oi.unit_price) / COUNT(DISTINCT o.id), 2) AS avg_order_value FROM orders o JOIN order_items oi ON o.id = oi.order_id",solution:"SELECT SUM(oi.quantity * oi.unit_price) AS total_revenue, COUNT(DISTINCT o.id) AS total_orders, ROUND(SUM(oi.quantity * oi.unit_price) / COUNT(DISTINCT o.id), 2) AS avg_order_value FROM orders o JOIN order_items oi ON o.id = oi.order_id;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('total_revenue')},
+          {label:"Top Products",title:"Top 5 best-selling products by revenue",desc:"Find the top 5 products with highest total revenue. Join order_items and products.",xp:130,hint:"SELECT p.name, SUM(oi.quantity * oi.unit_price) AS revenue FROM order_items oi JOIN products p ON oi.product_id = p.id GROUP BY p.id, p.name ORDER BY revenue DESC LIMIT 5",solution:"SELECT p.name, SUM(oi.quantity * oi.unit_price) AS revenue FROM order_items oi JOIN products p ON oi.product_id = p.id GROUP BY p.id, p.name ORDER BY revenue DESC LIMIT 5;",validate:(r)=>r&&r.length===5&&r[0].hasOwnProperty('revenue')},
+          {label:"City Analysis",title:"Revenue and order count by city",desc:"Show each city's total revenue and order count. Join orders, order_items, and customers.",xp:140,hint:"SELECT c.city, COUNT(DISTINCT o.id) AS orders, SUM(oi.quantity * oi.unit_price) AS revenue FROM orders o JOIN customers c ON o.customer_id = c.id JOIN order_items oi ON o.id = oi.order_id GROUP BY c.city ORDER BY revenue DESC",solution:"SELECT c.city, COUNT(DISTINCT o.id) AS orders, SUM(oi.quantity * oi.unit_price) AS revenue FROM orders o JOIN customers c ON o.customer_id = c.id JOIN order_items oi ON o.id = oi.order_id GROUP BY c.city ORDER BY revenue DESC;",validate:(r)=>r&&r.length>3&&r[0].hasOwnProperty('revenue')}
+        ]
+      },
+      {
+        title:"Project: Customer Analytics",
+        sub:"RFM Analysis & Segmentation",
+        diff:"expert",xp:160,
+        tags:["project","interview"],
+        theory:`<div class="project-banner"><div class="project-icon">👥</div><div class="project-info"><h3>Customer Segmentation</h3><p>RFM (Recency, Frequency, Monetary) analysis is used by every e-commerce company to understand customer value.</p></div></div>
+<p><strong>RFM Model:</strong></p>
+<p>• <strong>Recency</strong> — How recently did the customer order?<br>• <strong>Frequency</strong> — How many times have they ordered?<br>• <strong>Monetary</strong> — How much have they spent total?</p>
+<p>This is asked in ~70% of data analyst interviews at e-commerce companies.</p>`,
+        schema:["customers","orders","order_items"],
+        challenges:[
+          {label:"Frequency",title:"Order frequency per customer",desc:"Show each customer's name and how many orders they've placed (frequency). Order by frequency DESC.",xp:130,hint:"SELECT c.name, COUNT(o.id) AS frequency FROM customers c LEFT JOIN orders o ON c.id = o.customer_id GROUP BY c.id, c.name ORDER BY frequency DESC",solution:"SELECT c.name, COUNT(o.id) AS frequency FROM customers c LEFT JOIN orders o ON c.id = o.customer_id GROUP BY c.id, c.name ORDER BY frequency DESC;",validate:(r)=>r&&r.length>=10&&r[0].hasOwnProperty('frequency')},
+          {label:"Monetary",title:"Total spend per customer",desc:"Calculate total monetary value per customer (sum of quantity * unit_price across all their orders).",xp:140,hint:"SELECT c.name, ROUND(SUM(oi.quantity * oi.unit_price),2) AS monetary FROM customers c JOIN orders o ON c.id = o.customer_id JOIN order_items oi ON o.id = oi.order_id GROUP BY c.id, c.name ORDER BY monetary DESC",solution:"SELECT c.name, ROUND(SUM(oi.quantity * oi.unit_price),2) AS monetary FROM customers c JOIN orders o ON c.id = o.customer_id JOIN order_items oi ON o.id = oi.order_id GROUP BY c.id, c.name ORDER BY monetary DESC;",validate:(r)=>r&&r.length>5&&r[0].hasOwnProperty('monetary')},
+          {label:"Segmentation",title:"Classify customers as VIP, Regular, or At-Risk",desc:"Using CTE: calculate order count per customer, then classify: VIP (3+ orders), Regular (2 orders), At-Risk (0-1 orders).",xp:170,hint:"WITH rfm AS (SELECT c.id, c.name, COUNT(o.id) AS freq FROM customers c LEFT JOIN orders o ON c.id = o.customer_id GROUP BY c.id, c.name) SELECT name, freq, CASE WHEN freq >= 3 THEN 'VIP' WHEN freq = 2 THEN 'Regular' ELSE 'At-Risk' END AS segment FROM rfm ORDER BY freq DESC",solution:"WITH rfm AS (SELECT c.id, c.name, COUNT(o.id) AS freq FROM customers c LEFT JOIN orders o ON c.id = o.customer_id GROUP BY c.id, c.name) SELECT name, freq, CASE WHEN freq >= 3 THEN 'VIP' WHEN freq = 2 THEN 'Regular' ELSE 'At-Risk' END AS segment FROM rfm ORDER BY freq DESC;",validate:(r)=>r&&r.length>=10&&r[0].hasOwnProperty('segment')}
+        ]
+      },
+      {
+        title:"Project: Product Performance",
+        sub:"Inventory & ratings analytics",
+        diff:"expert",xp:150,
+        tags:["project","interview"],
+        theory:`<div class="project-banner"><div class="project-icon">📦</div><div class="project-info"><h3>Product Analytics</h3><p>Product managers and analysts need to track inventory risk, review quality, and identify high-margin products.</p></div></div>`,
+        schema:["products","order_items","reviews"],
+        challenges:[
+          {label:"Low Stock Alert",title:"Products at risk of stockout",desc:"Find active products with stock < 20 and total_reviews > 100 (popular but low stock). Show name, stock, price, rating.",xp:130,hint:"SELECT name, stock, price, rating FROM products WHERE is_active = 1 AND stock < 20 AND total_reviews > 100 ORDER BY stock ASC",solution:"SELECT name, stock, price, rating FROM products WHERE is_active = 1 AND stock < 20 AND total_reviews > 100 ORDER BY stock ASC;",validate:(r)=>r&&r.length>=1},
+          {label:"Margin",title:"Profit margin per product",desc:"Calculate profit margin % = ((price - cost) / price * 100) for each active product. Show name, price, cost, margin. Order by margin DESC.",xp:140,hint:"SELECT name, price, cost, ROUND((price - cost) / price * 100, 1) AS margin_pct FROM products WHERE is_active = 1 ORDER BY margin_pct DESC",solution:"SELECT name, price, cost, ROUND((price - cost) / price * 100, 1) AS margin_pct FROM products WHERE is_active = 1 ORDER BY margin_pct DESC;",validate:(r)=>r&&r.length>5&&r[0].hasOwnProperty('margin_pct')},
+          {label:"Review Analysis",title:"Products with most helpful reviews",desc:"Join products and reviews. Show product name, avg rating from reviews, total helpful_votes. Order by helpful_votes DESC.",xp:140,hint:"SELECT p.name, ROUND(AVG(r.rating),2) AS avg_rating, SUM(r.helpful_votes) AS total_helpful FROM products p JOIN reviews r ON p.id = r.product_id GROUP BY p.id, p.name ORDER BY total_helpful DESC",solution:"SELECT p.name, ROUND(AVG(r.rating),2) AS avg_rating, SUM(r.helpful_votes) AS total_helpful FROM products p JOIN reviews r ON p.id = r.product_id GROUP BY p.id, p.name ORDER BY total_helpful DESC;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('avg_rating')}
+        ]
+      }
+    ]
+  },
+  {
+    name:"💼 Interview Prep", icon:"💼",
+    isInterview:true,
+    lessons:[
+      {
+        title:"Interview Questions — Beginner",
+        sub:"Commonly asked in screening rounds",
+        diff:"medium",xp:100,
+        tags:["interview"],
+        isInterviewLesson:true,
+        theory:``,
+        schema:["customers","orders","products"],
+        interviewQuestions:[
+          {q:"What is the difference between WHERE and HAVING?",a:"WHERE filters rows BEFORE aggregation. HAVING filters groups AFTER aggregation. You can't use aggregate functions in WHERE, but you can in HAVING.",companies:["amazon","google","flipkart"]},
+          {q:"What is the difference between INNER JOIN and LEFT JOIN?",a:"INNER JOIN returns only matching rows from both tables. LEFT JOIN returns ALL rows from the left table plus matching rows from the right — unmatched right rows become NULL.",companies:["microsoft","meta","flipkart"]},
+          {q:"What is the difference between UNION and UNION ALL?",a:"UNION removes duplicate rows (slower). UNION ALL keeps all rows including duplicates (faster). Use UNION ALL when you know there are no duplicates or don't care about them.",companies:["amazon","google"]},
+          {q:"How do you find duplicate rows in a table?",a:"GROUP BY the column(s) and use HAVING COUNT(*) > 1. Example: SELECT email, COUNT(*) FROM customers GROUP BY email HAVING COUNT(*) > 1;",companies:["amazon","flipkart","microsoft"]},
+          {q:"What is a NULL value? How do you handle it?",a:"NULL means unknown/missing value. Use IS NULL or IS NOT NULL to check. Use COALESCE(col, default) to replace NULLs with a default value. Never use = NULL (always returns false).",companies:["google","meta","amazon"]},
+          {q:"What is the difference between COUNT(*) and COUNT(column)?",a:"COUNT(*) counts ALL rows including NULLs. COUNT(column) counts only rows where that column is NOT NULL. COUNT(DISTINCT col) counts unique non-null values.",companies:["amazon","flipkart","google"]},
+          {q:"What does GROUP BY do? What rule must you follow?",a:"GROUP BY groups rows sharing a value and lets you aggregate each group. Rule: every column in SELECT must either be in GROUP BY or wrapped in an aggregate function (COUNT, SUM, etc.).",companies:["amazon","microsoft","meta"]},
+          {q:"How would you get the top 3 records per group?",a:"Use ROW_NUMBER() OVER (PARTITION BY group_col ORDER BY value DESC) inside a CTE or subquery, then filter WHERE row_num <= 3. This is a very common interview pattern.",companies:["google","amazon","flipkart"]},
+          {q:"What is the difference between a subquery and a JOIN?",a:"A JOIN combines columns from multiple tables horizontally. A subquery nests one query inside another and can return a value, row, or table. JOINs are generally faster; subqueries are more readable for some cases.",companies:["microsoft","google","meta"]}
+        ],
+        challenges:[
+          {label:"Classic",title:"Find duplicate emails",desc:"Find any email that appears more than once in the customers table.",xp:80,hint:"SELECT email, COUNT(*) as cnt FROM customers GROUP BY email HAVING COUNT(*) > 1",solution:"SELECT email, COUNT(*) AS cnt FROM customers GROUP BY email HAVING COUNT(*) > 1;",validate:(r)=>r!==null},
+          {label:"Nth Highest",title:"Find the 2nd highest priced product",desc:"Classic interview question! Find the product with the 2nd highest price (no LIMIT OFFSET — use subquery).",xp:100,hint:"SELECT MAX(price) FROM products WHERE price < (SELECT MAX(price) FROM products)",solution:"SELECT name, price FROM products WHERE price = (SELECT MAX(price) FROM products WHERE price < (SELECT MAX(price) FROM products));",validate:(r)=>r&&r.length>0}
+        ]
+      },
+      {
+        title:"Interview Questions — Advanced",
+        sub:"Senior/mid-level interview rounds",
+        diff:"hard",xp:120,
+        tags:["interview"],
+        isInterviewLesson:true,
+        theory:``,
+        schema:["customers","orders","order_items","products","employees"],
+        interviewQuestions:[
+          {q:"What are Window Functions? Give an example.",a:"Window functions perform calculations across a set of rows related to the current row. Unlike GROUP BY they don't collapse rows. Example: ROW_NUMBER() OVER (PARTITION BY dept ORDER BY salary DESC) gives rank within each department.",companies:["google","amazon","meta"]},
+          {q:"What is a CTE and when would you use it?",a:"A Common Table Expression (WITH clause) creates a named temporary result set. Use it to: 1) Break complex queries into readable steps, 2) Reuse a subquery multiple times, 3) Write recursive queries. Better than nested subqueries for readability.",companies:["google","amazon","flipkart","microsoft"]},
+          {q:"How do you find customers who placed orders in January but not in February?",a:"SELECT DISTINCT customer_id FROM orders WHERE strftime('%m', order_date) = '01' AND customer_id NOT IN (SELECT customer_id FROM orders WHERE strftime('%m', order_date) = '02')",companies:["amazon","flipkart"]},
+          {q:"What is the difference between RANK() and DENSE_RANK()?",a:"Both rank rows. RANK() leaves gaps after ties: 1,2,2,4 (position 3 is skipped). DENSE_RANK() has no gaps: 1,2,2,3. Use DENSE_RANK when you need continuous ranking.",companies:["google","microsoft","meta"]},
+          {q:"How would you calculate month-over-month growth?",a:"Use LAG() window function to compare current month's value to previous month. Or use a self-join on the same table with date offset. Pattern: (current_value - prev_value) / prev_value * 100 AS growth_pct",companies:["amazon","flipkart","microsoft"]},
+          {q:"How do you find the first purchase date for every customer?",a:"SELECT customer_id, MIN(order_date) AS first_purchase FROM orders GROUP BY customer_id. Or use ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date) and filter WHERE rn = 1.",companies:["amazon","flipkart","google"]},
+          {q:"Write a query to detect gaps in sequential IDs.",a:"SELECT id+1 AS gap_start FROM orders o WHERE NOT EXISTS (SELECT 1 FROM orders o2 WHERE o2.id = o.id+1) AND id < (SELECT MAX(id) FROM orders). Finds IDs that are 'missing' from the sequence.",companies:["google","microsoft"]},
+          {q:"How would you find customers who churned (ordered before but not in last 90 days)?",a:"SELECT DISTINCT customer_id FROM orders WHERE order_date < date('now','-90 days') AND customer_id NOT IN (SELECT customer_id FROM orders WHERE order_date >= date('now','-90 days')). Classic retention analysis pattern.",companies:["flipkart","amazon","meta"]},
+          {q:"Explain the execution order of SQL clauses.",a:"FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → LIMIT. Key insight: WHERE runs before GROUP BY (so no aggregates in WHERE), but HAVING runs after (so aggregates are allowed).",companies:["google","amazon","microsoft","meta"]}
+        ],
+        challenges:[
+          {label:"Running Total",title:"Running total of orders placed over time",desc:"Show each order date and a running count of total orders placed up to that date.",xp:110,hint:"SELECT order_date, COUNT(*) OVER (ORDER BY order_date) AS running_order_count FROM orders",solution:"SELECT order_date, id, COUNT(*) OVER (ORDER BY order_date, id) AS running_order_count FROM orders;",validate:(r)=>r&&r.length>5&&r[0].hasOwnProperty('running_order_count')},
+          {label:"Top Per Group",title:"Top spending customer per city",desc:"Find the highest-spending customer in each city. Use window functions or CTE.",xp:140,hint:"WITH spend AS (SELECT c.name, c.city, SUM(oi.quantity * oi.unit_price) AS total FROM customers c JOIN orders o ON c.id = o.customer_id JOIN order_items oi ON o.id = oi.order_id GROUP BY c.id, c.name, c.city), ranked AS (SELECT *, RANK() OVER (PARTITION BY city ORDER BY total DESC) AS rnk FROM spend) SELECT name, city, total FROM ranked WHERE rnk = 1",solution:"WITH spend AS (SELECT c.name, c.city, SUM(oi.quantity * oi.unit_price) AS total FROM customers c JOIN orders o ON c.id = o.customer_id JOIN order_items oi ON o.id = oi.order_id GROUP BY c.id, c.name, c.city), ranked AS (SELECT *, RANK() OVER (PARTITION BY city ORDER BY total DESC) AS rnk FROM spend) SELECT name, city, total FROM ranked WHERE rnk = 1;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('city')}
+        ]
+      },
+      {
+        title:"Speed Round — Mixed Practice",
+        sub:"50 rapid-fire challenges",
+        diff:"expert",xp:200,
+        tags:["interview","project"],
+        isInterviewLesson:false,
+        theory:`<p>These mixed challenges simulate real interview conditions. Time yourself — aim to solve each in under 3 minutes.</p>
+<div class="analogy-box">⏱️ In interviews, clarity of thought matters more than perfection. Think out loud: "I'll start with a GROUP BY on customer_id, join to customers for the name, then HAVING for the filter."</div>`,
+        schema:["customers","orders","order_items","products","employees","reviews"],
+        challenges:[
+          {label:"Q1",title:"Average rating per brand",desc:"Show each brand, count of products, and average rating. Order by avg_rating DESC.",xp:80,hint:"SELECT brand, COUNT(*) as products, ROUND(AVG(rating),2) as avg_rating FROM products GROUP BY brand ORDER BY avg_rating DESC",solution:"SELECT brand, COUNT(*) AS products, ROUND(AVG(rating),2) AS avg_rating FROM products GROUP BY brand ORDER BY avg_rating DESC;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('avg_rating')},
+          {label:"Q2",title:"Premium customers who ordered in March 2024",desc:"Find premium customers (is_premium=1) who placed an order in March 2024.",xp:90,hint:"SELECT DISTINCT c.name, c.city FROM customers c JOIN orders o ON c.id = o.customer_id WHERE c.is_premium = 1 AND strftime('%Y-%m', o.order_date) = '2024-03'",solution:"SELECT DISTINCT c.name, c.city FROM customers c JOIN orders o ON c.id = o.customer_id WHERE c.is_premium = 1 AND strftime('%Y-%m', o.order_date) = '2024-03';",validate:(r)=>r&&r.length>0},
+          {label:"Q3",title:"Products never ordered",desc:"Find products that have never appeared in any order_item.",xp:100,hint:"SELECT name FROM products WHERE id NOT IN (SELECT DISTINCT product_id FROM order_items)",solution:"SELECT name, price FROM products WHERE id NOT IN (SELECT DISTINCT product_id FROM order_items);",validate:(r)=>r&&r.length>0},
+          {label:"Q4",title:"Department with highest total salary",desc:"Show each department and total salary. Find the one with max total salary.",xp:90,hint:"SELECT department, SUM(salary) AS total FROM employees GROUP BY department ORDER BY total DESC LIMIT 1",solution:"SELECT department, SUM(salary) AS total_salary FROM employees GROUP BY department ORDER BY total_salary DESC LIMIT 1;",validate:(r)=>r&&r.length===1&&r[0].hasOwnProperty('total_salary')},
+          {label:"Q5",title:"Customers who spent more than the average customer",desc:"Find customers whose total spend is above the average total spend across all customers.",xp:130,hint:"WITH spend AS (SELECT customer_id, SUM(quantity*unit_price) AS total FROM orders o JOIN order_items oi ON o.id=oi.order_id GROUP BY customer_id) SELECT c.name, s.total FROM spend s JOIN customers c ON s.customer_id=c.id WHERE s.total > (SELECT AVG(total) FROM spend)",solution:"WITH spend AS (SELECT o.customer_id, SUM(oi.quantity*oi.unit_price) AS total FROM orders o JOIN order_items oi ON o.id=oi.order_id GROUP BY o.customer_id) SELECT c.name, ROUND(s.total,2) AS total_spend FROM spend s JOIN customers c ON s.customer_id=c.id WHERE s.total > (SELECT AVG(total) FROM spend) ORDER BY total_spend DESC;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('name')},
+          {label:"Q6",title:"Month with the highest number of orders",desc:"Find which month (YYYY-MM format) had the most orders placed.",xp:90,hint:"SELECT strftime('%Y-%m', order_date) AS month, COUNT(*) AS cnt FROM orders GROUP BY month ORDER BY cnt DESC LIMIT 1",solution:"SELECT strftime('%Y-%m', order_date) AS month, COUNT(*) AS total_orders FROM orders GROUP BY month ORDER BY total_orders DESC LIMIT 1;",validate:(r)=>r&&r.length===1&&r[0].hasOwnProperty('month')},
+          {label:"Q7",title:"Employees earning above their department average",desc:"Find employees whose salary is above the average salary of their own department. Use a subquery or window function.",xp:120,hint:"SELECT name, department, salary FROM employees e WHERE salary > (SELECT AVG(salary) FROM employees e2 WHERE e2.department = e.department)",solution:"SELECT name, department, salary FROM employees e WHERE salary > (SELECT AVG(salary) FROM employees e2 WHERE e2.department = e.department) ORDER BY department, salary DESC;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('department')},
+          {label:"Q8",title:"Products with above-average rating in their category",desc:"For each category_id, find products whose rating is above the average rating of that category.",xp:120,hint:"SELECT name, category_id, rating FROM products p WHERE rating > (SELECT AVG(rating) FROM products p2 WHERE p2.category_id = p.category_id)",solution:"SELECT name, category_id, rating FROM products p WHERE is_active=1 AND rating > (SELECT AVG(rating) FROM products p2 WHERE p2.category_id = p.category_id AND p2.is_active=1) ORDER BY category_id, rating DESC;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('rating')},
+          {label:"Q9",title:"Rolling 3-order average of unit prices",desc:"Show each order_item's unit_price and a 3-row moving average (current + 2 previous rows) using window functions.",xp:130,hint:"SELECT id, unit_price, AVG(unit_price) OVER (ORDER BY id ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS moving_avg FROM order_items",solution:"SELECT id, unit_price, ROUND(AVG(unit_price) OVER (ORDER BY id ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),2) AS moving_avg_3 FROM order_items;",validate:(r)=>r&&r.length>0&&r[0].hasOwnProperty('moving_avg_3')},
+          {label:"Q10",title:"Customers with orders in every month of Q1 2024",desc:"Find customers who placed at least one order in each of Jan, Feb, and March 2024.",xp:150,hint:"SELECT customer_id FROM orders WHERE order_date BETWEEN '2024-01-01' AND '2024-03-31' GROUP BY customer_id HAVING COUNT(DISTINCT strftime('%m', order_date)) = 3",solution:"SELECT c.name, COUNT(DISTINCT strftime('%m', o.order_date)) AS active_months FROM customers c JOIN orders o ON c.id = o.customer_id WHERE o.order_date BETWEEN '2024-01-01' AND '2024-03-31' GROUP BY c.id, c.name HAVING active_months = 3;",validate:(r)=>r&&r.length>0}
+        ]
+      }
+    ]
+  }
+];
+
+// =====================================================
+// QUICK INTERVIEW QS FOR SIDE PANEL
+// =====================================================
+const PANEL_IQS = [
+  {q:"WHERE vs HAVING — difference?",a:"WHERE filters rows BEFORE grouping. HAVING filters groups AFTER aggregation. Can't use SUM/COUNT in WHERE."},
+  {q:"INNER JOIN vs LEFT JOIN?",a:"INNER: only matching rows in both tables. LEFT: ALL rows from left + matches from right (NULL where no match)."},
+  {q:"UNION vs UNION ALL?",a:"UNION removes duplicates (slower). UNION ALL keeps all rows including duplicates (faster)."},
+  {q:"How to find duplicate rows?",a:"SELECT col, COUNT(*) FROM table GROUP BY col HAVING COUNT(*) > 1"},
+  {q:"What is NULL? How to handle?",a:"NULL = missing value. Use IS NULL / IS NOT NULL. Use COALESCE(col, 'default') to replace NULLs. Never = NULL."},
+  {q:"RANK vs DENSE_RANK vs ROW_NUMBER?",a:"ROW_NUMBER: always unique (1,2,3,4). RANK: gaps after ties (1,2,2,4). DENSE_RANK: no gaps (1,2,2,3)."},
+  {q:"What is a CTE?",a:"WITH clause — named temp result set. Makes complex queries readable. Allows reuse without repeating subqueries."},
+  {q:"What is a Window Function?",a:"Calculates over rows WITHOUT collapsing them. Uses OVER() clause. Examples: RANK(), SUM() OVER, LAG()."},
+  {q:"Nth highest salary query?",a:"SELECT DISTINCT salary FROM employees ORDER BY salary DESC LIMIT 1 OFFSET N-1. Or: DENSE_RANK() OVER (ORDER BY salary DESC) then WHERE rank=N."},
+  {q:"DELETE vs TRUNCATE vs DROP?",a:"DELETE: specific rows, can rollback. TRUNCATE: all rows, fast. DROP: removes table structure entirely."},
+  {q:"Primary Key vs Foreign Key?",a:"PK: uniquely identifies row, not NULL, one per table. FK: references PK of another table, enforces relationships."},
+  {q:"COUNT(*) vs COUNT(column)?",a:"COUNT(*): all rows including NULLs. COUNT(col): only non-NULL values. COUNT(DISTINCT col): unique non-NULLs."},
+  {q:"What is normalization?",a:"Organizing tables to reduce redundancy. 1NF: atomic values. 2NF: no partial deps. 3NF: no transitive deps."},
+  {q:"What is an index?",a:"Speeds up SELECT queries. DB finds rows without full scan. Trade-off: faster reads, slower writes/updates."},
+  {q:"GROUP BY vs PARTITION BY?",a:"GROUP BY collapses to one row per group. PARTITION BY (window) keeps all rows, adds calculated column per group."},
+  {q:"What is a correlated subquery?",a:"Subquery that references outer query column. Runs once per outer row. Used for row-by-row comparisons."},
+  {q:"How to get records from last 30 days?",a:"WHERE order_date >= date('now', '-30 days') in SQLite. MySQL: WHERE date >= DATE_SUB(NOW(), INTERVAL 30 DAY)"},
+  {q:"How to pivot rows into columns?",a:"Use CASE WHEN inside SUM/COUNT: SUM(CASE WHEN month='Jan' THEN sales END) AS Jan. This turns row values to column headers."},
+  {q:"What is LAG() and LEAD()?",a:"LAG(col,n): value from n rows BEFORE current. LEAD(col,n): value from n rows AFTER. Used for MoM growth, day-over-day changes."},
+  {q:"EXISTS vs IN — which is faster?",a:"EXISTS stops at first match (faster for large subqueries). IN evaluates all. EXISTS wins when subquery returns many rows."},
+  {q:"SQL execution order?",a:"FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → LIMIT. WHERE runs before GROUP BY!"},
+  {q:"How to find customers who churned?",a:"Customers who ordered before but NOT in last 90 days: WHERE order_date < date('now','-90 days') AND customer_id NOT IN (recent orders subquery)."},
+  {q:"Self Join — when do you use it?",a:"When a table relates to itself. E.g. employees + manager (both in same table): JOIN employees m ON e.manager_id = m.id"},
+  {q:"How to find first purchase per customer?",a:"SELECT customer_id, MIN(order_date) AS first_purchase FROM orders GROUP BY customer_id. Or ROW_NUMBER() OVER(PARTITION BY customer_id ORDER BY order_date)."},
+  {q:"What is a running total?",a:"SUM(col) OVER (ORDER BY date_col) AS running_total. The OVER with ORDER BY creates cumulative sum without collapsing rows."}
+];
+
+// =====================================================
+// SQL REFERENCE
+// =====================================================
+const SQL_REF = [
+  {title:"SELECT",code:"SELECT col1, col2\nFROM table\nWHERE condition\nGROUP BY col\nHAVING agg_cond\nORDER BY col DESC\nLIMIT n;"},
+  {title:"JOINs",code:"FROM a\nINNER JOIN b ON a.id = b.a_id\nLEFT JOIN c ON a.id = c.a_id"},
+  {title:"Window Funcs",code:"RANK() OVER (PARTITION BY dept\n             ORDER BY salary DESC)\nSUM(sal) OVER (ORDER BY date)\nLAG(col, 1) OVER (ORDER BY date)"},
+  {title:"CTE",code:"WITH cte_name AS (\n  SELECT ...\n)\nSELECT * FROM cte_name;"},
+  {title:"CASE WHEN",code:"CASE\n  WHEN price < 500 THEN 'Budget'\n  WHEN price < 5000 THEN 'Mid'\n  ELSE 'Premium'\nEND AS tier"},
+  {title:"Aggregates",code:"COUNT(*), SUM(col),\nAVG(col), MAX(col), MIN(col)\nCOUNT(DISTINCT col)"}
+];
+
+// =====================================================
+// APP STATE
+// =====================================================
+let db = null;
+let currentLessonPath = null; // {moduleIdx, lessonIdx}
+let completedChallenges = {}; // key: "m-l-ch" -> true
+let xp = 0;
+let totalLessons = MODULES.reduce((s,m) => s + m.lessons.length, 0);
+
+// =====================================================
+// INIT
+// =====================================================
+
+
+// =====================================================
+// SIDEBAR
+// =====================================================
+function renderSidebar(filter='') {
+  const el = document.getElementById('sidebar-list');
+  let html = '';
+  MODULES.forEach((mod, mi) => {
+    const matchLessons = mod.lessons.filter(l =>
+      !filter || l.title.toLowerCase().includes(filter.toLowerCase())
+    );
+    if (filter && matchLessons.length === 0) return;
+    html += `<div class="module-header" onclick="toggleModule(${mi})">
+      <span class="module-icon">${mod.icon}</span>
+      <span class="module-name">${mod.name}</span>
+      <span class="module-count">${mod.lessons.length}</span>
+      <span class="module-arrow open" id="marr-${mi}">▶</span>
+    </div>
+    <div id="mlessons-${mi}">`;
+    matchLessons.forEach(l => {
+      const li = mod.lessons.indexOf(l);
+      const key = `${mi}-${li}`;
+      const done = isChallengesDone(mi, li);
+      const active = currentLessonPath && currentLessonPath.mi === mi && currentLessonPath.li === li;
+      html += `<div class="lesson-btn ${done?'completed':''} ${active?'active':''}" onclick="loadLesson(${mi},${li})" id="lb-${mi}-${li}">
+        <div class="l-num">${done ? '✓' : (mi*10+li+1)}</div>
+        <div class="l-info">
+          <div class="l-name">${l.title}</div>
+          <div class="l-sub">${l.sub}</div>
+        </div>
+        <span class="l-diff diff-${l.diff}">${l.diff}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  el.innerHTML = html;
+}
+
+function toggleModule(mi) {
+  const el = document.getElementById(`mlessons-${mi}`);
+  const arr = document.getElementById(`marr-${mi}`);
+  if (el.style.display === 'none') {
+    el.style.display = '';
+    arr.classList.add('open');
+  } else {
+    el.style.display = 'none';
+    arr.classList.remove('open');
+  }
+}
+
+function filterLessons(val) { renderSidebar(val); }
+
+function isChallengesDone(mi, li) {
+  const l = MODULES[mi].lessons[li];
+  return l.challenges && l.challenges.every((_, ci) => completedChallenges[`${mi}-${li}-${ci}`]);
+}
+
+function startLearning() { loadLesson(0, 0); }
+
+// =====================================================
+// LOAD LESSON
+// =====================================================
+function loadLesson(mi, li) {
+  currentLessonPath = {mi, li};
+  const mod = MODULES[mi];
+  const lesson = mod.lessons[li];
+  renderSidebar(document.getElementById('search-input').value);
+
+  document.getElementById('welcome-screen').style.display = 'none';
+  document.getElementById('lesson-content').style.display = 'block';
+
+  let html = `
+    <div class="lesson-top">
+      <div class="l-crumb">${mod.name} <span>›</span> ${lesson.title}</div>
+      <div class="l-big-title">${lesson.title}</div>
+      <div class="l-meta">
+        <span class="tag tag-concept">${lesson.sub}</span>
+        ${lesson.tags.includes('project') ? '<span class="tag tag-project">🏗 Project</span>':'' }
+        ${lesson.tags.includes('interview') ? '<span class="tag tag-interview">💼 Interview</span>':'' }
+        <span class="l-diff diff-${lesson.diff}">${lesson.diff}</span>
+      </div>
+    </div>
+  `;
+
+  if (lesson.theory) {
+    html += `<div class="theory-block">
+      <div class="block-title blue">📖 Theory</div>
+      <div class="theory-text">${lesson.theory}</div>
+    </div>`;
+  }
+
+  if (lesson.schema && lesson.schema.length > 0) {
+    html += `<div class="theory-block">
+      <div class="block-title yellow">🗺 Schema Used</div>
+      <div class="schema-grid">${lesson.schema.map(renderSchemaCard).join('')}</div>
+    </div>`;
+  }
+
+  if (lesson.isInterviewLesson && lesson.interviewQuestions) {
+    html += `<div class="interview-hero">
+      <h2>💼 Interview Q&A</h2>
+      <p>Click "Show Answer" to reveal. Study these before your interview!</p>
+    </div>`;
+    lesson.interviewQuestions.forEach((iq, qi) => {
+      const tags = iq.companies.map(c => `<span class="co-tag co-${c}">${c.charAt(0).toUpperCase()+c.slice(1)}</span>`).join('');
+      html += `<div class="iq-full-card">
+        <div class="question">${qi+1}. ${iq.q}</div>
+        <div class="company-tags">${tags}</div>
+        <button class="show-ans-btn" onclick="toggleAnswer(${mi},${li},${qi})">▶ Show Answer</button>
+        <div class="answer-box" id="ans-${mi}-${li}-${qi}"><pre>${iq.a}</pre></div>
+      </div>`;
+    });
+  }
+
+  if (lesson.challenges && lesson.challenges.length > 0) {
+    html += `<div class="theory-block"><div class="block-title orange">🎯 Challenges</div></div>`;
+    lesson.challenges.forEach((ch, ci) => {
+      const done = completedChallenges[`${mi}-${li}-${ci}`];
+      html += `<div class="challenge-card" id="chcard-${mi}-${li}-${ci}">
+        <div class="challenge-header">
+          <div class="ch-num">${ci+1}</div>
+          <div class="ch-body">
+            <div class="ch-label">${ch.label}</div>
+            <div class="ch-title">${ch.title} <span class="ch-done-badge ${done?'show':''}" id="done-${mi}-${li}-${ci}">✅ Solved</span></div>
+            <div class="ch-desc">${ch.desc}</div>
+          </div>
+          <div class="ch-xp">+${ch.xp} XP</div>
+        </div>
+        <div class="editor-container">
+          <div class="editor-bar">
+            <div style="display:flex;align-items:center;gap:6px">
+              <div class="editor-dots"><span class="ed-dot ed-r"></span><span class="ed-dot ed-y"></span><span class="ed-dot ed-g"></span></div>
+              <span class="editor-label">SQL Editor</span>
+            </div>
+            <div class="editor-btns">
+              <button class="btn-hint" onclick="showHint(${mi},${li},${ci})">💡 Hint</button>
+              <button class="btn-solution" onclick="showSolution(${mi},${li},${ci})">📋 Solution</button>
+              <button class="btn-run" onclick="runChallenge(${mi},${li},${ci})">▶ Run</button>
+            </div>
+          </div>
+          <textarea class="sql-input" id="sql-${mi}-${li}-${ci}" placeholder="Write your SQL here…" spellcheck="false">${ch.starter||''}</textarea>
+          <div id="result-${mi}-${li}-${ci}" class="result-box"></div>
+        </div>
+      </div>`;
+    });
+  }
+
+  // NAV
+  const prevLesson = getPrev(mi, li);
+  const nextLesson = getNext(mi, li);
+  html += `<div class="lesson-nav">
+    <div>
+      ${prevLesson ? `<button class="btn-nav btn-prev-l" onclick="loadLesson(${prevLesson.mi},${prevLesson.li})">← Previous</button>` : '<div></div>'}
+    </div>
+    <div>
+      ${nextLesson ? `<button class="btn-nav btn-next-l" onclick="loadLesson(${nextLesson.mi},${nextLesson.li})">Next Lesson →</button>` : `<button class="btn-finish" onclick="showFinish()">🏆 Course Complete!</button>`}
+    </div>
+  </div>`;
+
+  document.getElementById('lesson-content').innerHTML = html;
+  document.getElementById('lesson-scroll').scrollTop = 0;
+}
+
+function getPrev(mi, li) {
+  if (li > 0) return {mi, li: li-1};
+  if (mi > 0) { const pm = MODULES[mi-1]; return {mi: mi-1, li: pm.lessons.length-1}; }
+  return null;
+}
+function getNext(mi, li) {
+  if (li < MODULES[mi].lessons.length-1) return {mi, li: li+1};
+  if (mi < MODULES.length-1) return {mi: mi+1, li: 0};
+  return null;
+}
+
+function toggleAnswer(mi, li, qi) {
+  const el = document.getElementById(`ans-${mi}-${li}-${qi}`);
+  el.classList.toggle('show');
+}
+
+// =====================================================
+// SCHEMA CARD
+// =====================================================
+const SCHEMA_DEF = {
+  customers:[['id','INT','PK'],['name','TEXT',''],['email','TEXT',''],['city','TEXT',''],['age','INT',''],['is_premium','INT','']],
+  products:[['id','INT','PK'],['name','TEXT',''],['price','REAL',''],['cost','REAL',''],['stock','INT',''],['rating','REAL',''],['brand','TEXT','']],
+  orders:[['id','INT','PK'],['customer_id','INT','FK'],['order_date','TEXT',''],['status','TEXT',''],['payment_method','TEXT','']],
+  order_items:[['id','INT','PK'],['order_id','INT','FK'],['product_id','INT','FK'],['quantity','INT',''],['unit_price','REAL',''],['discount','REAL','']],
+  reviews:[['id','INT','PK'],['product_id','INT','FK'],['customer_id','INT','FK'],['rating','INT',''],['helpful_votes','INT','']],
+  employees:[['id','INT','PK'],['name','TEXT',''],['department','TEXT',''],['manager_id','INT','FK'],['salary','REAL',''],['hire_date','TEXT','']],
+  categories:[['id','INT','PK'],['name','TEXT',''],['parent_id','INT','']]
+};
+
+const SCHEMA_ROWS = {customers:12,products:20,orders:18,order_items:27,reviews:10,employees:10,categories:8};
+
+function renderSchemaCard(name) {
+  const cols = SCHEMA_DEF[name] || [];
+  return `<div class="schema-card">
+    <div class="schema-head">
+      <span class="schema-tname">${name}</span>
+      <span class="schema-rc">${SCHEMA_ROWS[name]||'?'} rows</span>
+    </div>
+    ${cols.map(([c,t,f]) => `<div class="schema-col">
+      <span>${c}</span>
+      <span style="display:flex;gap:4px;align-items:center">
+        <span class="type">${t}</span>
+        ${f==='PK'?'<span class="pk">PK</span>':f==='FK'?'<span class="fk">FK</span>':''}
+      </span>
+    </div>`).join('')}
+  </div>`;
+}
+
+// =====================================================
+// RUN QUERY
+// =====================================================
+function runChallenge(mi, li, ci) {
+  const sql = document.getElementById(`sql-${mi}-${li}-${ci}`).value.trim();
+  const resultEl = document.getElementById(`result-${mi}-${li}-${ci}`);
+  if (!sql) return;
+  if (!db) {
+    resultEl.innerHTML = `<div class="msg msg-error">SQL engine not loaded. Please check internet and refresh the page.</div>`;
+    return;
+  }
+
+  try {
+    const results = db.exec(sql);
+    const key = `${mi}-${li}-${ci}`;
+    const ch = MODULES[mi].lessons[li].challenges[ci];
+
+    if (results.length === 0) {
+      resultEl.innerHTML = `<div class="msg msg-success">✅ Query executed. No rows returned (this may be correct for INSERT/UPDATE/DELETE).</div>`;
+      if (!completedChallenges[key]) {
+        markDone(mi, li, ci, ch.xp);
+      }
+      return;
+    }
+
+    const {columns, values} = results[results.length-1];
+    const rows = values.map(v => { const o={}; columns.forEach((c,i)=>o[c]=v[i]); return o; });
+
+    const correct = ch.validate(rows);
+
+    let tableHTML = `<div class="result-table-wrap"><table class="rt">
+      <thead><tr>${columns.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${rows.slice(0,50).map(r=>`<tr>${columns.map(c=>`<td>${r[c]===null?'<span style="color:#475569">NULL</span>':r[c]}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div>
+    <div class="result-meta">${rows.length} row${rows.length!==1?'s':''} returned ${rows.length>50?'(showing first 50)':''}</div>`;
+
+    if (correct && !completedChallenges[key]) {
+      tableHTML = `<div class="msg-correct">🎉 Correct! Challenge solved!</div>` + tableHTML;
+      markDone(mi, li, ci, ch.xp);
+    }
+
+    resultEl.innerHTML = tableHTML;
+  } catch(e) {
+    document.getElementById(`result-${mi}-${li}-${ci}`).innerHTML =
+      `<div class="msg msg-error">❌ ${e.message}</div>`;
+  }
+}
+
+function markDone(mi, li, ci, earnedXp) {
+  const key = `${mi}-${li}-${ci}`;
+  completedChallenges[key] = true;
+  xp += earnedXp;
+  document.getElementById('xp-val').textContent = xp;
+  document.getElementById('lv-val').textContent = Math.floor(xp/500)+1;
+
+  const doneEl = document.getElementById(`done-${mi}-${li}-${ci}`);
+  if (doneEl) doneEl.classList.add('show');
+
+  // update progress
+  const done = Object.keys(completedChallenges).length;
+  const total = MODULES.reduce((s,m)=>s+m.lessons.reduce((s2,l)=>s2+(l.challenges?l.challenges.length:0),0),0);
+  document.getElementById('streak-val').textContent = MODULES.reduce((s,m,mi2)=>s+m.lessons.filter((_,li2)=>isChallengesDone(mi2,li2)).length,0);
+
+  // lesson progress
+  const lessonsComplete = MODULES.reduce((s,m,mi2)=>s+m.lessons.filter((_,li2)=>isChallengesDone(mi2,li2)).length,0);
+  document.getElementById('prog-text').textContent = `${lessonsComplete} / ${totalLessons}`;
+  document.getElementById('prog-fill').style.width = `${lessonsComplete/totalLessons*100}%`;
+
+  renderSidebar(document.getElementById('search-input').value);
+}
+
+function showHint(mi, li, ci) {
+  const ch = MODULES[mi].lessons[li].challenges[ci];
+  document.getElementById(`result-${mi}-${li}-${ci}`).innerHTML =
+    `<div class="msg msg-hint">💡 Hint: <code style="background:#0a0f20;padding:2px 8px;border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:0.78rem">${ch.hint}</code></div>`;
+}
+
+function showSolution(mi, li, ci) {
+  const ch = MODULES[mi].lessons[li].challenges[ci];
+  document.getElementById(`sql-${mi}-${li}-${ci}`).value = ch.solution;
+  document.getElementById(`result-${mi}-${li}-${ci}`).innerHTML =
+    `<div class="msg msg-solution">📋 Solution loaded! Run it to see the output. Study it and understand each part.</div>`;
+}
+
+function showFinish() {
+  document.getElementById('modal-icon').textContent = '🏆';
+  document.getElementById('modal-title').textContent = 'Course Complete!';
+  document.getElementById('modal-body').textContent = `You've completed the SQL Track in SkillStack Pro! You earned ${xp} XP and are now interview-ready for data analyst roles.`;
+  document.getElementById('modal-xp').textContent = `🌟 ${xp} XP Total`;
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+// =====================================================
+// PANELS
+// =====================================================
+function switchPanel(panel, el) {
+  ['db','iq','ref'].forEach(p => {
+    document.getElementById(`panel-${p}`).style.display = p===panel ? '' : 'none';
+  });
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function renderDBPanel() {
+  const el = document.getElementById('db-panel-content');
+  el.innerHTML = Object.entries(SCHEMA_DEF).map(([name, cols]) => `
+    <div class="db-table-card">
+      <div class="db-th" onclick="toggleDBTable('${name}')">
+        ${name} <span style="font-size:0.65rem;color:var(--muted)">${SCHEMA_ROWS[name]} rows ▾</span>
+      </div>
+      <div class="db-cols" id="dbt-${name}">
+        ${cols.map(([c,t]) => `<div class="db-col-row"><span>${c}</span><span class="db-col-type">${t}</span></div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleDBTable(name) {
+  document.getElementById(`dbt-${name}`).classList.toggle('open');
+}
+
+function renderIQPanel() {
+  const el = document.getElementById('iq-panel-content');
+  el.innerHTML = PANEL_IQS.map((iq, i) => `
+    <div class="iq-card">
+      <div class="iq-q">${iq.q}</div>
+      <div class="iq-a" id="piq-${i}">${iq.a}</div>
+      <span class="iq-toggle" onclick="document.getElementById('piq-${i}').classList.toggle('show');this.textContent=this.textContent.includes('▶')?'▼ Hide':'▶ Show'">▶ Show</span>
+    </div>
+  `).join('');
+}
+
+function renderRefPanel() {
+  const el = document.getElementById('ref-panel-content');
+  el.innerHTML = SQL_REF.map(r => `
+    <div class="iq-card">
+      <div class="iq-q">${r.title}</div>
+      <pre style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:#60a5fa;background:var(--code-bg);padding:8px;border-radius:6px;margin-top:6px;overflow-x:auto;white-space:pre-wrap">${r.code}</pre>
+    </div>
+  `).join('');
+}
+
+// keyboard shortcut
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    // find active textarea
+    const active = document.activeElement;
+    if (active && active.classList.contains('sql-input')) {
+      const id = active.id; // sql-mi-li-ci
+      const parts = id.split('-');
+      if (parts.length === 4) runChallenge(+parts[1], +parts[2], +parts[3]);
+    }
+  }
+});
+
+
+// =====================================================
+// ADMIN EMAIL — change this to your own email
+// =====================================================
+const ADMIN_EMAIL = 'admin@skillstackpro.com';
+
+// =====================================================
+// AUTH STATE
+// =====================================================
+let currentUser = null; // {id, name, email, role, joinedAt}
+
+// =====================================================
+// STORAGE HELPERS (persistent per-user data)
+// =====================================================
+async function saveUserProgress() {
+  if (!currentUser) return;
+  const data = {
+    completedChallenges,
+    xp,
+    lastActive: new Date().toISOString()
+  };
+  try {
+    await window.storage.set('progress:' + currentUser.id, JSON.stringify(data));
+  } catch(e) {}
+}
+
+async function loadUserProgress() {
+  if (!currentUser) return;
+  try {
+    const res = await window.storage.get('progress:' + currentUser.id);
+    if (res && res.value) {
+      const data = JSON.parse(res.value);
+      completedChallenges = data.completedChallenges || {};
+      xp = data.xp || 0;
+      document.getElementById('xp-val').textContent = xp;
+      document.getElementById('lv-val').textContent = Math.floor(xp/500)+1;
+      const done = MODULES.reduce((s,m,mi)=>s+m.lessons.filter((_,li)=>isChallengesDone(mi,li)).length,0);
+      document.getElementById('streak-val').textContent = done;
+      const pct = Math.round(done/totalLessons*100);
+      document.getElementById('prog-fill').style.width = pct+'%';
+      document.getElementById('prog-text').textContent = done+' / '+totalLessons;
+    }
+  } catch(e) {}
+}
+
+async function saveUserAccount(userData) {
+  try {
+    await window.storage.set('user:' + userData.id, JSON.stringify(userData), true);
+    // Also save id to the user index
+    let indexData = [];
+    try {
+      const idx = await window.storage.get('user-index', true);
+      if (idx && idx.value) indexData = JSON.parse(idx.value);
+    } catch(e) {}
+    if (!indexData.includes(userData.id)) {
+      indexData.push(userData.id);
+      await window.storage.set('user-index', JSON.stringify(indexData), true);
+    }
+  } catch(e) {}
+}
+
+async function getAllUsers() {
+  try {
+    const idx = await window.storage.get('user-index', true);
+    if (!idx || !idx.value) return [];
+    const ids = JSON.parse(idx.value);
+    const users = [];
+    for (const id of ids) {
+      try {
+        const u = await window.storage.get('user:' + id, true);
+        if (u && u.value) {
+          const userData = JSON.parse(u.value);
+          // Get their progress
+          try {
+            const prog = await window.storage.get('progress:' + id);
+            if (prog && prog.value) {
+              const p = JSON.parse(prog.value);
+              userData.xp = p.xp || 0;
+              userData.challengeCount = Object.keys(p.completedChallenges || {}).length;
+              userData.lastActive = p.lastActive || userData.joinedAt;
+            }
+          } catch(e) {}
+          users.push(userData);
+        }
+      } catch(e) {}
+    }
+    return users;
+  } catch(e) { return []; }
+}
+
+function hashPassword(pw) {
+  // Simple hash for demo — in production use bcrypt on a server
+  let hash = 0;
+  const str = pw + 'skillstackprosalt2026';
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return 'h' + Math.abs(hash).toString(36);
+}
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+}
+
+// =====================================================
+// AUTH UI
+// =====================================================
+function showAuthScreen() {
+  document.getElementById('auth-screen').style.display = 'flex';
+  // Load learner count
+  loadLearnerCount();
+}
+
+function hideAuthScreen() {
+  document.getElementById('auth-screen').style.display = 'none';
+}
+
+async function loadLearnerCount() {
+  try {
+    const idx = await window.storage.get('user-index', true);
+    if (idx && idx.value) {
+      const ids = JSON.parse(idx.value);
+      document.getElementById('auth-user-count').textContent = ids.length > 0 ? ids.length : '—';
+    } else {
+      document.getElementById('auth-user-count').textContent = '—';
+    }
+  } catch(e) {
+    document.getElementById('auth-user-count').textContent = '—';
+  }
+}
+
+function switchAuthTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-register').classList.toggle('active', tab==='register');
+  document.getElementById('login-form').style.display = tab==='login' ? '' : 'none';
+  document.getElementById('register-form').style.display = tab==='register' ? '' : 'none';
+}
+
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+function showAuthMsg(type, msgId, text) {
+  const el = document.getElementById(msgId);
+  el.className = 'auth-msg show ' + type;
+  el.textContent = text;
+}
+
+function hideAuthMsg(msgId) {
+  document.getElementById(msgId).classList.remove('show');
+}
+
+// =====================================================
+// LOGIN
+// =====================================================
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pw = document.getElementById('login-password').value;
+
+  if (!email || !pw) { showAuthMsg('error','login-msg','Please fill in all fields.'); return; }
+
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+
+  try {
+    // Find user by email in shared storage
+    const idx = await window.storage.get('user-index', true);
+    if (!idx || !idx.value) { showAuthMsg('error','login-msg','No account found. Please register.'); btn.disabled=false;btn.textContent='Sign In →'; return; }
+
+    const ids = JSON.parse(idx.value);
+    let foundUser = null;
+    for (const id of ids) {
+      try {
+        const u = await window.storage.get('user:'+id, true);
+        if (u && u.value) {
+          const uData = JSON.parse(u.value);
+          if (uData.email === email) { foundUser = uData; break; }
+        }
+      } catch(e) {}
+    }
+
+    if (!foundUser) { showAuthMsg('error','login-msg','No account with this email. Please register.'); btn.disabled=false;btn.textContent='Sign In →'; return; }
+    if (foundUser.passwordHash !== hashPassword(pw)) { showAuthMsg('error','login-msg','Incorrect password. Try again.'); btn.disabled=false;btn.textContent='Sign In →'; return; }
+
+    // Success
+    currentUser = foundUser;
+    onLoginSuccess();
+  } catch(e) {
+    showAuthMsg('error','login-msg','Error signing in. Please try again.');
+    btn.disabled=false; btn.textContent='Sign In →';
+  }
+}
+
+// =====================================================
+// REGISTER
+// =====================================================
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pw = document.getElementById('reg-password').value;
+
+  if (!name || !email || !pw) { showAuthMsg('error','register-msg','Please fill in all fields.'); return; }
+  if (pw.length < 6) { showAuthMsg('error','register-msg','Password must be at least 6 characters.'); return; }
+  if (!email.includes('@') || !email.includes('.')) { showAuthMsg('error','register-msg','Please enter a valid email.'); return; }
+
+  const btn = document.getElementById('btn-register');
+  btn.disabled = true; btn.textContent = 'Creating account…';
+
+  try {
+    // Check if email already exists
+    const idx = await window.storage.get('user-index', true);
+    if (idx && idx.value) {
+      const ids = JSON.parse(idx.value);
+      for (const id of ids) {
+        try {
+          const u = await window.storage.get('user:'+id, true);
+          if (u && u.value) {
+            const uData = JSON.parse(u.value);
+            if (uData.email === email) {
+              showAuthMsg('error','register-msg','An account with this email already exists. Sign in instead.');
+              btn.disabled=false; btn.textContent='Create Account →';
+              return;
+            }
+          }
+        } catch(e) {}
+      }
+    }
+
+    const newUser = {
+      id: generateId(),
+      name,
+      email,
+      passwordHash: hashPassword(pw),
+      role: email === ADMIN_EMAIL ? 'admin' : 'user',
+      joinedAt: new Date().toISOString()
+    };
+
+    await saveUserAccount(newUser);
+    currentUser = newUser;
+    showAuthMsg('success','register-msg','Account created! Loading your course…');
+    setTimeout(onLoginSuccess, 800);
+  } catch(e) {
+    showAuthMsg('error','register-msg','Error creating account. Please try again.');
+    btn.disabled=false; btn.textContent='Create Account →';
+  }
+}
+
+// =====================================================
+// POST-LOGIN
+// =====================================================
+async function onLoginSuccess() {
+  hideAuthScreen();
+  // Show user in topbar
+  const wrap = document.getElementById('user-menu-wrap');
+  wrap.style.display = 'flex';
+  const initials = currentUser.name.split(' ').map(n=>n[0]).join('').toUpperCase().substr(0,2);
+  document.getElementById('user-avatar').textContent = initials;
+  document.getElementById('user-name-pill').textContent = currentUser.name.split(' ')[0];
+  document.getElementById('dd-name').textContent = currentUser.name;
+  document.getElementById('dd-email').textContent = currentUser.email;
+
+  if (currentUser.role === 'admin') {
+    document.getElementById('admin-menu-item').style.display = 'flex';
+  }
+
+  // Load saved progress
+  await loadUserProgress();
+  renderSidebar();
+}
+
+// =====================================================
+// LOGOUT
+// =====================================================
+async function doLogout() {
+  await saveUserProgress();
+  currentUser = null;
+  completedChallenges = {};
+  xp = 0;
+  document.getElementById('user-menu-wrap').style.display = 'none';
+  document.getElementById('user-dropdown').classList.remove('open');
+  document.getElementById('xp-val').textContent = '0';
+  document.getElementById('lv-val').textContent = '1';
+  document.getElementById('streak-val').textContent = '0';
+  document.getElementById('prog-fill').style.width = '0%';
+  document.getElementById('prog-text').textContent = '0 / '+totalLessons;
+  // Reset to welcome
+  document.getElementById('welcome-screen').style.display = '';
+  document.getElementById('lesson-content').style.display = 'none';
+  document.getElementById('lesson-content').innerHTML = '';
+  currentLessonPath = null;
+  renderSidebar();
+  showAuthScreen();
+  switchAuthTab('login');
+  // Reset login form
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+  hideAuthMsg('login-msg');
+  const btn = document.getElementById('btn-login');
+  btn.disabled = false; btn.textContent = 'Sign In →';
+}
+
+// =====================================================
+// USER MENU
+// =====================================================
+function toggleUserMenu() {
+  document.getElementById('user-dropdown').classList.toggle('open');
+}
+
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('user-menu-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('user-dropdown').classList.remove('open');
+  }
+});
+
+function showProfile() {
+  document.getElementById('user-dropdown').classList.remove('open');
+  const done = Object.keys(completedChallenges).length;
+  const lessons = MODULES.reduce((s,m,mi)=>s+m.lessons.filter((_,li)=>isChallengesDone(mi,li)).length,0);
+  document.getElementById('modal-icon').textContent = '👤';
+  document.getElementById('modal-title').textContent = currentUser.name;
+  document.getElementById('modal-body').innerHTML =
+    '📧 '+currentUser.email+'<br><br>'+
+    '📅 Joined: '+new Date(currentUser.joinedAt).toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric'})+'<br><br>'+
+    '✅ Challenges solved: '+done+'<br>'+
+    '📚 Lessons completed: '+lessons+' / '+totalLessons+'<br>'+
+    '🏆 Level: '+Math.floor(xp/500+1);
+  document.getElementById('modal-xp').textContent = '⭐ '+xp+' XP';
+  document.getElementById('modal').classList.add('show');
+}
+
+// =====================================================
+// ADMIN DASHBOARD
+// =====================================================
+function openAdmin() {
+  document.getElementById('user-dropdown').classList.remove('open');
+  if (!currentUser || currentUser.role !== 'admin') return;
+  document.getElementById('admin-screen').style.display = 'flex';
+  loadAdminData();
+}
+
+function closeAdmin() {
+  document.getElementById('admin-screen').style.display = 'none';
+}
+
+async function loadAdminData() {
+  document.getElementById('admin-user-tbody').innerHTML = '<tr><td colspan="8" style="color:var(--muted);padding:20px;text-align:center">Loading…</td></tr>';
+  const users = await getAllUsers();
+  document.getElementById('admin-user-count-label').textContent = users.length+' users';
+  document.getElementById('as-total').textContent = users.length;
+
+  const now = Date.now();
+  const sevenDays = 7*24*60*60*1000;
+  const active = users.filter(u => u.lastActive && (now - new Date(u.lastActive).getTime()) < sevenDays);
+  document.getElementById('as-active').textContent = active.length;
+
+  const avgXp = users.length ? Math.round(users.reduce((s,u)=>s+(u.xp||0),0)/users.length) : 0;
+  document.getElementById('as-xp').textContent = avgXp;
+
+  const avgCh = users.length ? Math.round(users.reduce((s,u)=>s+(u.challengeCount||0),0)/users.length) : 0;
+  document.getElementById('as-complete').textContent = avgCh;
+
+  if (users.length === 0) {
+    document.getElementById('admin-user-tbody').innerHTML = '<tr><td colspan="8" style="color:var(--muted);padding:20px;text-align:center">No users registered yet.</td></tr>';
+    return;
+  }
+
+  users.sort((a,b) => new Date(b.joinedAt) - new Date(a.joinedAt));
+
+  document.getElementById('admin-user-tbody').innerHTML = users.map(u => {
+    const joined = new Date(u.joinedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const lastActive = u.lastActive ? new Date(u.lastActive).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '—';
+    const isNew = (now - new Date(u.joinedAt).getTime()) < 48*60*60*1000;
+    const roleBadge = u.role==='admin' ? '<span class="admin-badge badge-admin">Admin</span>' : isNew ? '<span class="admin-badge badge-new">New</span>' : '<span class="admin-badge badge-active">Active</span>';
+    return `<tr>
+      <td><strong>${u.name}</strong></td>
+      <td style="color:var(--muted2)">${u.email}</td>
+      <td style="color:var(--muted2)">${joined}</td>
+      <td><strong style="color:var(--yellow)">⭐ ${u.xp||0}</strong></td>
+      <td>${u.challengeCount||0}</td>
+      <td style="color:var(--muted2)">${lastActive}</td>
+      <td>${roleBadge}</td>
+      <td>${u.role!=='admin' ? `<button class="btn-admin-del" onclick="deleteUser('${u.id}')">Delete</button>` : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function deleteUser(userId) {
+  if (!confirm('Are you sure you want to delete this user? This cannot be undone.')) return;
+  try {
+    await window.storage.delete('user:'+userId, true);
+    await window.storage.delete('progress:'+userId);
+    // Remove from index
+    const idx = await window.storage.get('user-index', true);
+    if (idx && idx.value) {
+      const ids = JSON.parse(idx.value).filter(id => id !== userId);
+      await window.storage.set('user-index', JSON.stringify(ids), true);
+    }
+    await loadAdminData();
+  } catch(e) { alert('Error deleting user.'); }
+}
+
+// =====================================================
+// OVERRIDE markDone to auto-save progress
+// =====================================================
+if (!window.__markDonePatched && typeof window.markDone === 'function') {
+  const _baseMarkDone = window.markDone;
+  window.markDone = function(mi, li, ci, earnedXp) {
+    _baseMarkDone(mi, li, ci, earnedXp);
+    saveUserProgress();
+  };
+  window.__markDonePatched = true;
+}
+
+async function initApp() {
+  try {
+    // Init SQL engine silently
+    const SQL = await initSqlJs({
+      locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}`
+    });
+    db = new SQL.Database();
+    db.run(DB_SQL);
+  } catch (err) {
+    console.error('SQL engine failed to load:', err);
+    db = null;
+  }
+
+  // Always render UI so app is visible even if one renderer fails
+  try {
+    renderSidebar();
+  } catch (err) {
+    console.error('renderSidebar failed:', err);
+    const sb = document.getElementById('sidebar-list');
+    if (sb) {
+      try {
+        sb.innerHTML = MODULES.map((m, i) => `<div style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:0.8rem;color:var(--muted2)">${i+1}. ${m.name}</div>`).join('');
+      } catch (_) {
+        sb.innerHTML = '<div style="padding:12px;color:var(--muted)">Unable to load modules.</div>';
+      }
+    }
+  }
+
+  try { renderDBPanel(); } catch (err) { console.error('renderDBPanel failed:', err); }
+  try { renderIQPanel(); } catch (err) { console.error('renderIQPanel failed:', err); }
+  try { renderRefPanel(); } catch (err) { console.error('renderRefPanel failed:', err); }
+  try { showAuthScreen(); } catch (err) { console.error('showAuthScreen failed:', err); }
+}
+
+initApp();
+
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="curriculum-upgrade.js"></script>
+<script src="app-auth-subscription.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-local-adapter.js"></script>
+<script src="advanced-learning-features.js"></script>
+</body>
+</html>
+
+

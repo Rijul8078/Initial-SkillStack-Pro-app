@@ -1,0 +1,17 @@
+{
+  "name": "skillstack-pro",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "netlify dev",
+    "build": "echo \"Static build\""
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "razorpay": "^2.9.6"
+  },
+  "devDependencies": {
+    "netlify-cli": "^22.1.3"
+  }
+}
