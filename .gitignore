@@ -1,3 +1,4 @@
 node_modules/
 .env
 _tmp_inline_check.js
+.netlify/
