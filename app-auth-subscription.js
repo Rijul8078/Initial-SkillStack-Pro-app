@@ -370,7 +370,7 @@
   window.deleteUser = async function (userId) {
     if (!confirm('Are you sure you want to delete this user? This cannot be undone.')) return;
     try {
-      await api('/admin-delete-user', { method: 'POST', body: { userId }, auth: true });
+      await api('/admin-action', { method: 'POST', body: { action: 'delete_user', userId }, auth: true });
       await loadAdminData();
     } catch (err) {
       alert(err.message || 'Error deleting user.');
@@ -379,7 +379,7 @@
 
   window.setUserRole = async function (userId, role) {
     try {
-      await api('/admin-update-role', { method: 'POST', body: { userId, role }, auth: true });
+      await api('/admin-action', { method: 'POST', body: { action: 'update_role', userId, role }, auth: true });
       await loadAdminData();
     } catch (err) {
       alert(err.message || 'Failed to update role.');
@@ -388,7 +388,7 @@
 
   window.setUserSuspension = async function (userId, isSuspended) {
     try {
-      await api('/admin-set-suspension', { method: 'POST', body: { userId, isSuspended }, auth: true });
+      await api('/admin-action', { method: 'POST', body: { action: 'set_suspension', userId, isSuspended }, auth: true });
       await loadAdminData();
     } catch (err) {
       alert(err.message || 'Failed to update suspension.');
@@ -397,7 +397,7 @@
 
   window.updateUserSubscription = async function (userId, status) {
     try {
-      await api('/admin-update-subscription', { method: 'POST', body: { userId, status, plan: 'pro', months: 12 }, auth: true });
+      await api('/admin-action', { method: 'POST', body: { action: 'update_subscription', userId, status, plan: 'pro', months: 12 }, auth: true });
       await loadAdminData();
     } catch (err) {
       alert(err.message || 'Failed to update subscription.');
@@ -406,9 +406,9 @@
 
   window.grantFullAccess = async function (userId) {
     try {
-      await api('/admin-update-subscription', {
+      await api('/admin-action', {
         method: 'POST',
-        body: { userId, status: 'active', plan: 'pro', months: 12 },
+        body: { action: 'update_subscription', userId, status: 'active', plan: 'pro', months: 12 },
         auth: true,
       });
       await loadAdminData();
@@ -419,9 +419,9 @@
 
   window.revokeFullAccess = async function (userId) {
     try {
-      await api('/admin-update-subscription', {
+      await api('/admin-action', {
         method: 'POST',
-        body: { userId, status: 'free', plan: 'free', months: 0 },
+        body: { action: 'update_subscription', userId, status: 'free', plan: 'free', months: 0 },
         auth: true,
       });
       await loadAdminData();
@@ -433,7 +433,7 @@
   window.resetUserProgress = async function (userId) {
     if (!confirm('Reset this user progress to zero?')) return;
     try {
-      await api('/admin-reset-progress', { method: 'POST', body: { userId }, auth: true });
+      await api('/admin-action', { method: 'POST', body: { action: 'reset_progress', userId }, auth: true });
       await loadAdminData();
     } catch (err) {
       alert(err.message || 'Failed to reset progress.');
