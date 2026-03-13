@@ -544,14 +544,8 @@
   };
 
   window.loadLearnerCount = async function () {
-    try {
-      const data = await api('/learner-count', { method: 'GET', auth: false });
-      const c = Number(data.count || 0);
-      document.getElementById('auth-user-count').textContent = c > 0 ? String(c) : '—';
-    } catch (_) {
-      if (typeof localFallback.loadLearnerCount === 'function') return localFallback.loadLearnerCount();
-      document.getElementById('auth-user-count').textContent = '—';
-    }
+    const el = document.getElementById('auth-user-count');
+    if (el) el.textContent = 'Private';
   };
 
   window.doRegister = async function () {

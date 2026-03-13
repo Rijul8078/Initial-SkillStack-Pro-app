@@ -393,7 +393,7 @@ table.rt tr:hover td{background:#ffffff05}
         <div class="auth-stat"><div class="auth-stat-n">42</div><div class="auth-stat-l">Lessons</div></div>
         <div class="auth-stat"><div class="auth-stat-n">80+</div><div class="auth-stat-l">Challenges</div></div>
         <div class="auth-stat"><div class="auth-stat-n">8</div><div class="auth-stat-l">Modules</div></div>
-        <div class="auth-stat"><div class="auth-stat-n" id="auth-user-count">—</div><div class="auth-stat-l">Learners</div></div>
+<div class="auth-stat"><div class="auth-stat-n" id="auth-user-count">Private</div><div class="auth-stat-l">Community</div></div>
       </div>
     </div>
     <div class="auth-right">
@@ -2065,17 +2065,8 @@ function hideAuthScreen() {
 }
 
 async function loadLearnerCount() {
-  try {
-    const idx = await window.storage.get('user-index', true);
-    if (idx && idx.value) {
-      const ids = JSON.parse(idx.value);
-      document.getElementById('auth-user-count').textContent = ids.length > 0 ? ids.length : '—';
-    } else {
-      document.getElementById('auth-user-count').textContent = '—';
-    }
-  } catch(e) {
-    document.getElementById('auth-user-count').textContent = '—';
-  }
+  const el = document.getElementById('auth-user-count');
+  if (el) el.textContent = 'Private';
 }
 
 function switchAuthTab(tab) {

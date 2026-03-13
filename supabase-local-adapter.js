@@ -32,7 +32,7 @@
   window.loadLearnerCount = async function () {
     // RLS usually blocks global count for anon/auth users; show placeholder.
     const el = document.getElementById("auth-user-count");
-    if (el) el.textContent = "—";
+    if (el) el.textContent = "Private";
   };
 
   window.doRegister = async function () {
