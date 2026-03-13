@@ -339,6 +339,24 @@ table.rt tr:hover td{background:#ffffff05}
 .stat-pill{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 20px;text-align:center}
 .stat-num{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;color:var(--accent)}
 .stat-lbl{font-size:0.72rem;color:var(--muted);margin-top:2px}
+.roadmap-wrap{width:min(980px,100%);margin:0 auto 22px;background:linear-gradient(135deg,#0a1224,#101a34);border:1px solid #24324b;border-radius:14px;padding:14px}
+.roadmap-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.roadmap-title{font-size:0.85rem;font-weight:800;letter-spacing:.5px;color:#93c5fd}
+.roadmap-status{font-size:0.72rem;color:#cbd5e1}
+.roadmap-flow{display:flex;align-items:center;gap:8px;overflow-x:auto;padding-bottom:4px}
+.road-step{min-width:140px;background:#0b1220;border:1px solid #2b3a56;border-radius:10px;padding:10px;text-align:left;transition:all .25s}
+.road-step .k{font-size:0.64rem;color:#94a3b8;text-transform:uppercase;letter-spacing:1px}
+.road-step .t{font-size:0.74rem;color:#dbeafe;font-weight:700;line-height:1.3;margin-top:3px}
+.road-step .n{font-size:0.66rem;color:#7dd3fc;margin-top:4px}
+.road-step.done{border-color:#10b981;background:#052e2b;box-shadow:0 0 0 1px #10b98140 inset}
+.road-step.current{border-color:#38bdf8;background:#082f49;box-shadow:0 0 0 1px #38bdf840 inset}
+.road-step.locked{opacity:.72}
+.road-connector{flex:0 0 56px;height:4px;border-radius:99px;position:relative;background:linear-gradient(90deg,#1f2937,#1f2937);overflow:hidden}
+.road-connector::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#22d3ee,#3b82f6,#22d3ee);background-size:200% 100%;animation:flowline 1.2s linear infinite;opacity:.2}
+.road-connector.active::before{opacity:1}
+.road-connector .arr{position:absolute;right:-2px;top:-9px;font-size:.7rem;color:#60a5fa;animation:arrowrun 1s linear infinite}
+@keyframes flowline{from{background-position:0 0}to{background-position:200% 0}}
+@keyframes arrowrun{0%{transform:translateX(-8px);opacity:.2}100%{transform:translateX(0);opacity:1}}
 .btn-start{background:linear-gradient(135deg,var(--accent),var(--accent3));color:white;border:none;padding:12px 32px;border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;transition:all 0.2s}
 .btn-start:hover{opacity:0.85;transform:translateY(-2px)}
 
@@ -553,6 +571,13 @@ table.rt tr:hover td{background:#ffffff05}
           <div class="stat-pill"><div class="stat-num">86</div><div class="stat-lbl">Challenges</div></div>
           <div class="stat-pill"><div class="stat-num">9</div><div class="stat-lbl">Modules</div></div>
           <div class="stat-pill"><div class="stat-num">50+</div><div class="stat-lbl">Interview Qs</div></div>
+        </div>
+        <div class="roadmap-wrap">
+          <div class="roadmap-top">
+            <div class="roadmap-title">Live Roadmap: What to Learn Next</div>
+            <div class="roadmap-status" id="roadmap-status">Loading roadmap...</div>
+          </div>
+          <div class="roadmap-flow" id="roadmap-flow"></div>
         </div>
         <button class="btn-start" onclick="startLearning()">Start Learning →</button>
       </div>
@@ -1752,6 +1777,69 @@ let currentLessonPath = null; // {moduleIdx, lessonIdx}
 let completedChallenges = {}; // key: "m-l-ch" -> true
 let xp = 0;
 let totalLessons = MODULES.reduce((s,m) => s + m.lessons.length, 0);
+const ROADMAP_STEPS = [
+  { title: 'SQL Foundations', note: 'Module 1 - first 3 lessons', targetLessons: 3 },
+  { title: 'Filtering + Aggregations', note: 'WHERE, GROUP BY, HAVING', targetLessons: 8 },
+  { title: 'Joins Mastery', note: 'INNER, LEFT, SELF, anti-join', targetLessons: 14 },
+  { title: 'Subqueries + CTEs', note: 'Nested logic + readability', targetLessons: 20 },
+  { title: 'Windows + Optimization', note: 'Ranking, running totals, tuning', targetLessons: 28 },
+  { title: 'Projects + Interview', note: 'Real-world + mock rounds', targetLessons: 36 }
+];
+
+function getCompletedLessonCount() {
+  return MODULES.reduce((s, m, mi) => s + m.lessons.filter((_, li) => isChallengesDone(mi, li)).length, 0);
+}
+
+function renderRoadmap() {
+  const flow = document.getElementById('roadmap-flow');
+  if (!flow) return;
+  let html = '';
+  ROADMAP_STEPS.forEach((step, i) => {
+    html += `<div class="road-step locked" id="road-step-${i}">
+      <div class="k">Step ${i + 1}</div>
+      <div class="t">${step.title}</div>
+      <div class="n">${step.note}</div>
+    </div>`;
+    if (i < ROADMAP_STEPS.length - 1) {
+      html += `<div class="road-connector" id="road-conn-${i}"><span class="arr">➜</span></div>`;
+    }
+  });
+  flow.innerHTML = html;
+  updateRoadmapProgress();
+}
+
+function updateRoadmapProgress() {
+  const doneLessons = getCompletedLessonCount();
+  let current = ROADMAP_STEPS.length - 1;
+  for (let i = 0; i < ROADMAP_STEPS.length; i++) {
+    if (doneLessons < ROADMAP_STEPS[i].targetLessons) { current = i; break; }
+  }
+
+  ROADMAP_STEPS.forEach((step, i) => {
+    const el = document.getElementById(`road-step-${i}`);
+    if (!el) return;
+    el.classList.remove('done', 'current', 'locked');
+    if (doneLessons >= step.targetLessons) el.classList.add('done');
+    else if (i === current) el.classList.add('current');
+    else el.classList.add('locked');
+
+    if (i < ROADMAP_STEPS.length - 1) {
+      const conn = document.getElementById(`road-conn-${i}`);
+      if (!conn) return;
+      conn.classList.toggle('active', doneLessons >= step.targetLessons);
+    }
+  });
+
+  const status = document.getElementById('roadmap-status');
+  if (status) {
+    const next = ROADMAP_STEPS.find(s => doneLessons < s.targetLessons);
+    if (next) {
+      status.textContent = `${doneLessons}/${totalLessons} lessons complete · Next: ${next.title}`;
+    } else {
+      status.textContent = `${doneLessons}/${totalLessons} lessons complete · Roadmap completed`;
+    }
+  }
+}
 
 // =====================================================
 // INIT
@@ -2048,6 +2136,7 @@ function markDone(mi, li, ci, earnedXp) {
   const lessonsComplete = MODULES.reduce((s,m,mi2)=>s+m.lessons.filter((_,li2)=>isChallengesDone(mi2,li2)).length,0);
   document.getElementById('prog-text').textContent = `${lessonsComplete} / ${totalLessons}`;
   document.getElementById('prog-fill').style.width = `${lessonsComplete/totalLessons*100}%`;
+  updateRoadmapProgress();
 
   renderSidebar(document.getElementById('search-input').value);
 }
@@ -2179,8 +2268,10 @@ async function loadUserProgress() {
       const pct = Math.round(done/totalLessons*100);
       document.getElementById('prog-fill').style.width = pct+'%';
       document.getElementById('prog-text').textContent = done+' / '+totalLessons;
+      updateRoadmapProgress();
     }
   } catch(e) {}
+  updateRoadmapProgress();
 }
 
 async function saveUserAccount(userData) {
@@ -2418,6 +2509,7 @@ async function doLogout() {
   document.getElementById('streak-val').textContent = '0';
   document.getElementById('prog-fill').style.width = '0%';
   document.getElementById('prog-text').textContent = '0 / '+totalLessons;
+  updateRoadmapProgress();
   // Reset to welcome
   document.getElementById('welcome-screen').style.display = '';
   document.getElementById('lesson-content').style.display = 'none';
@@ -2574,6 +2666,7 @@ async function initApp() {
       }
     }
   }
+  try { renderRoadmap(); } catch (err) { console.error('renderRoadmap failed:', err); }
 
   try { renderDBPanel(); } catch (err) { console.error('renderDBPanel failed:', err); }
   try { renderIQPanel(); } catch (err) { console.error('renderIQPanel failed:', err); }
