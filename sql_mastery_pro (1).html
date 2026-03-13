@@ -360,6 +360,22 @@ table.rt tr:hover td{background:#ffffff05}
 .iq-full-card .answer-box.show{display:block}
 .iq-full-card .answer-box pre{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:#7dd3fc;white-space:pre-wrap;line-height:1.7}
 .show-ans-btn{font-size:0.72rem;color:var(--accent2);cursor:pointer;font-weight:700;display:flex;align-items:center;gap:4px;background:none;border:none;font-family:'Cabinet Grotesk',sans-serif;padding:0}
+.mock-box{background:linear-gradient(135deg,#0f172a,#111827);border:1px solid #334155;border-radius:12px;padding:14px;margin-bottom:14px}
+.mock-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.mock-title{font-size:0.86rem;font-weight:800;color:#c4b5fd}
+.mock-meta{font-size:0.72rem;color:var(--muted2)}
+.mock-actions{display:flex;gap:8px;flex-wrap:wrap}
+.mock-btn{border:1px solid #4f46e5;background:#312e81;color:#e0e7ff;border-radius:8px;padding:7px 10px;font-size:0.72rem;font-weight:700;cursor:pointer}
+.mock-btn.secondary{background:#0f172a;border-color:#334155;color:#cbd5e1}
+.mock-score{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0}
+.mock-pill{background:#0b1220;border:1px solid #24324b;border-radius:8px;padding:8px;text-align:center}
+.mock-pill b{display:block;color:#38bdf8;font-size:0.95rem}
+.mock-pill span{font-size:0.66rem;color:var(--muted)}
+.rubric-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:8px}
+.rubric-cell{background:#0b1220;border:1px solid #24324b;border-radius:8px;padding:6px}
+.rubric-cell label{display:block;font-size:0.62rem;color:var(--muted);margin-bottom:4px}
+.rubric-cell select{width:100%;background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:6px;padding:4px;font-size:0.68rem}
+@media (max-width:900px){.rubric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mock-score{grid-template-columns:1fr}}
 
 /* PROJECT SECTIONS */
 .project-banner{background:linear-gradient(135deg,#1a0f00,#0f1a00);border:1px solid var(--accent2)40;border-radius:12px;padding:18px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
@@ -1553,6 +1569,170 @@ const PANEL_IQS = [
 ];
 
 // =====================================================
+// MOCK INTERVIEW ENGINE (100+ QUESTION BANK + RUBRIC)
+// =====================================================
+const MOCK_RUBRIC_CRITERIA = [
+  ['correctness','Correctness'],
+  ['optimization','Optimization'],
+  ['communication','Communication'],
+  ['edge_cases','Edge Cases'],
+  ['tradeoffs','Tradeoffs']
+];
+
+const MOCK_CASES = [
+  {topic:'Joins', level:'medium', task:'customers who placed at least one order but never left a review', sql:"SELECT DISTINCT c.id, c.name FROM customers c JOIN orders o ON o.customer_id = c.id LEFT JOIN reviews r ON r.customer_id = c.id WHERE r.id IS NULL;"},
+  {topic:'Aggregations', level:'medium', task:'top 5 cities by completed order revenue', sql:"SELECT c.city, ROUND(SUM(oi.quantity*oi.unit_price),2) AS revenue FROM customers c JOIN orders o ON o.customer_id=c.id JOIN order_items oi ON oi.order_id=o.id WHERE o.status='delivered' GROUP BY c.city ORDER BY revenue DESC LIMIT 5;"},
+  {topic:'Window Functions', level:'hard', task:'rank products by revenue within each category', sql:"WITH rev AS (SELECT p.category_id,p.name,SUM(oi.quantity*oi.unit_price) AS revenue FROM products p JOIN order_items oi ON oi.product_id=p.id GROUP BY p.id,p.category_id,p.name) SELECT *, DENSE_RANK() OVER (PARTITION BY category_id ORDER BY revenue DESC) AS rnk FROM rev;"},
+  {topic:'CTE', level:'hard', task:'month-over-month growth in total revenue', sql:"WITH m AS (SELECT strftime('%Y-%m', o.order_date) AS ym, SUM(oi.quantity*oi.unit_price) AS rev FROM orders o JOIN order_items oi ON oi.order_id=o.id GROUP BY ym) SELECT ym, rev, ROUND((rev - LAG(rev) OVER (ORDER BY ym))*100.0/NULLIF(LAG(rev) OVER (ORDER BY ym),0),2) AS mom_growth_pct FROM m;"},
+  {topic:'Subqueries', level:'medium', task:'employees earning above department average', sql:"SELECT e.name, e.department, e.salary FROM employees e WHERE e.salary > (SELECT AVG(e2.salary) FROM employees e2 WHERE e2.department=e.department);"},
+  {topic:'Data Quality', level:'hard', task:'detect duplicate customer emails with latest created row', sql:"WITH x AS (SELECT id,email,created_at, ROW_NUMBER() OVER(PARTITION BY email ORDER BY created_at DESC) AS rn FROM customers) SELECT * FROM x WHERE rn > 1;"},
+  {topic:'Case/Segmentation', level:'medium', task:'bucket customers into spend tiers', sql:"WITH spend AS (SELECT o.customer_id, SUM(oi.quantity*oi.unit_price) AS total FROM orders o JOIN order_items oi ON oi.order_id=o.id GROUP BY o.customer_id) SELECT customer_id, CASE WHEN total < 500 THEN 'Low' WHEN total < 5000 THEN 'Mid' ELSE 'High' END AS tier FROM spend;"},
+  {topic:'Date Analytics', level:'medium', task:'weekly active customers for last 8 weeks', sql:"SELECT strftime('%Y-W%W', order_date) AS week, COUNT(DISTINCT customer_id) AS wau FROM orders WHERE order_date >= date('now','-56 days') GROUP BY week ORDER BY week;"},
+  {topic:'Retention', level:'hard', task:'customers active in Jan and also active in Feb', sql:"WITH jan AS (SELECT DISTINCT customer_id FROM orders WHERE strftime('%Y-%m',order_date)='2024-01'), feb AS (SELECT DISTINCT customer_id FROM orders WHERE strftime('%Y-%m',order_date)='2024-02') SELECT j.customer_id FROM jan j JOIN feb f ON f.customer_id=j.customer_id;"},
+  {topic:'Performance', level:'hard', task:'reduce query cost for filtering orders by customer and date', sql:"Create composite index on orders(customer_id, order_date). Filter by sargable predicates and avoid wrapping indexed columns in functions."},
+  {topic:'Transactions', level:'hard', task:'safe order placement with stock deduction', sql:"BEGIN; INSERT INTO orders(...); UPDATE products SET stock = stock - ? WHERE id=? AND stock>=?; COMMIT; -- rollback on failure"},
+  {topic:'SQL Fundamentals', level:'medium', task:'difference between WHERE and HAVING with example', sql:"WHERE filters rows before GROUP BY. HAVING filters groups after aggregation. Example: ... GROUP BY city HAVING COUNT(*) > 10;"}
+];
+
+const MOCK_PROMPTS = [
+  "Write the SQL query for",
+  "Explain your approach, then write SQL for",
+  "How would you optimize the solution for",
+  "What edge cases would you handle for",
+  "How would you test correctness for",
+  "If dataset grows 100x, how would you redesign query for",
+  "Give a production-ready answer for",
+  "Walk through this as if in an interview:",
+  "Provide SQL and explain tradeoffs for"
+];
+
+function buildMockInterviewBank() {
+  const companies = ['amazon','google','microsoft','meta','flipkart'];
+  const bank = [];
+  let id = 1;
+  MOCK_CASES.forEach((c, ci) => {
+    MOCK_PROMPTS.forEach((p, pi) => {
+      bank.push({
+        id: `mi-${id++}`,
+        topic: c.topic,
+        level: c.level,
+        companies: [companies[(ci + pi) % companies.length], companies[(ci + pi + 2) % companies.length]],
+        q: `${p} ${c.task}.`,
+        a: `Strong answer should include:\n1) Correct SQL pattern for ${c.topic}\n2) Clear explanation of join/filter/group order\n3) Tradeoff discussion (readability vs performance)\n\nReference answer:\n${c.sql}`,
+      });
+    });
+  });
+  return bank;
+}
+
+const MOCK_INTERVIEW_BANK = buildMockInterviewBank();
+let mockInterviewSessions = {};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getMockKey(mi, li) { return `${mi}-${li}`; }
+
+function pickMockQuestions(level, count) {
+  const pool = MOCK_INTERVIEW_BANK.filter(q => q.level === level);
+  const source = pool.length >= count ? pool : MOCK_INTERVIEW_BANK;
+  return shuffle(source).slice(0, count).map(q => ({
+    ...q,
+    showAnswer: false,
+    rubric: { correctness:0, optimization:0, communication:0, edge_cases:0, tradeoffs:0 }
+  }));
+}
+
+function startMockInterview(mi, li, count = 10) {
+  const lesson = MODULES[mi].lessons[li];
+  const level = (lesson.diff === 'hard' || lesson.diff === 'expert') ? 'hard' : 'medium';
+  mockInterviewSessions[getMockKey(mi, li)] = {
+    level,
+    startedAt: Date.now(),
+    questions: pickMockQuestions(level, count)
+  };
+  renderLesson(mi, li);
+}
+
+function toggleMockAnswer(mi, li, qi) {
+  const s = mockInterviewSessions[getMockKey(mi, li)];
+  if (!s || !s.questions[qi]) return;
+  s.questions[qi].showAnswer = !s.questions[qi].showAnswer;
+  const box = document.getElementById(`mock-interview-${mi}-${li}`);
+  if (box) box.innerHTML = renderMockInterviewSessionHTML(mi, li);
+}
+
+function setMockRubric(mi, li, qi, key, value) {
+  const s = mockInterviewSessions[getMockKey(mi, li)];
+  if (!s || !s.questions[qi]) return;
+  s.questions[qi].rubric[key] = Number(value);
+  const box = document.getElementById(`mock-interview-${mi}-${li}`);
+  if (box) box.innerHTML = renderMockInterviewSessionHTML(mi, li);
+}
+
+function getMockSummary(session) {
+  const qCount = session.questions.length || 1;
+  const perQuestionMax = MOCK_RUBRIC_CRITERIA.length * 5;
+  const maxTotal = qCount * perQuestionMax;
+  let earned = 0;
+  session.questions.forEach(q => {
+    MOCK_RUBRIC_CRITERIA.forEach(([k]) => { earned += Number(q.rubric[k] || 0); });
+  });
+  const pct = Math.round((earned * 100) / maxTotal);
+  const answered = session.questions.filter(q => MOCK_RUBRIC_CRITERIA.every(([k]) => Number(q.rubric[k] || 0) > 0)).length;
+  let band = 'Needs Work';
+  if (pct >= 80) band = 'Interview Ready';
+  else if (pct >= 65) band = 'Almost Ready';
+  return { pct, answered, total: qCount, band };
+}
+
+function renderMockInterviewSessionHTML(mi, li) {
+  const s = mockInterviewSessions[getMockKey(mi, li)];
+  if (!s) {
+    return `<div class="mock-meta">Start a mock session to get 10 randomized interview questions and rubric scoring.</div>`;
+  }
+  const summary = getMockSummary(s);
+  const elapsedMin = Math.max(1, Math.round((Date.now() - s.startedAt) / 60000));
+  return `
+    <div class="mock-score">
+      <div class="mock-pill"><b>${summary.pct}%</b><span>Rubric Score</span></div>
+      <div class="mock-pill"><b>${summary.answered}/${summary.total}</b><span>Fully Rated</span></div>
+      <div class="mock-pill"><b>${elapsedMin} min</b><span>Elapsed</span></div>
+    </div>
+    <div class="mock-meta" style="margin-bottom:8px">Status: <strong>${summary.band}</strong></div>
+    ${s.questions.map((q, qi) => `
+      <div class="iq-full-card">
+        <div class="question">${qi + 1}. ${q.q}</div>
+        <div class="company-tags">${q.companies.map(c => `<span class="co-tag co-${c}">${c.charAt(0).toUpperCase()+c.slice(1)}</span>`).join('')}<span class="co-tag">${q.topic}</span></div>
+        <button class="show-ans-btn" onclick="toggleMockAnswer(${mi},${li},${qi})">${q.showAnswer ? '▼ Hide Answer' : '▶ Show Answer'}</button>
+        <div class="answer-box ${q.showAnswer ? 'show' : ''}"><pre>${q.a}</pre></div>
+        <div class="rubric-grid">
+          ${MOCK_RUBRIC_CRITERIA.map(([k, label]) => `
+            <div class="rubric-cell">
+              <label>${label}</label>
+              <select onchange="setMockRubric(${mi},${li},${qi},'${k}',this.value)">
+                <option value="0" ${q.rubric[k]===0?'selected':''}>Not Rated</option>
+                <option value="1" ${q.rubric[k]===1?'selected':''}>1</option>
+                <option value="2" ${q.rubric[k]===2?'selected':''}>2</option>
+                <option value="3" ${q.rubric[k]===3?'selected':''}>3</option>
+                <option value="4" ${q.rubric[k]===4?'selected':''}>4</option>
+                <option value="5" ${q.rubric[k]===5?'selected':''}>5</option>
+              </select>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+// =====================================================
 // SQL REFERENCE
 // =====================================================
 const SQL_REF = [
@@ -1679,6 +1859,19 @@ function loadLesson(mi, li) {
     html += `<div class="interview-hero">
       <h2>💼 Interview Q&A</h2>
       <p>Click "Show Answer" to reveal. Study these before your interview!</p>
+    </div>`;
+    html += `<div class="mock-box">
+      <div class="mock-head">
+        <div>
+          <div class="mock-title">Rubric Mock Interview Mode</div>
+          <div class="mock-meta">${MOCK_INTERVIEW_BANK.length}+ question bank, scored on correctness, optimization, communication, edge-cases, and tradeoffs.</div>
+        </div>
+        <div class="mock-actions">
+          <button class="mock-btn" onclick="startMockInterview(${mi},${li},10)">Start 10-Question Mock</button>
+          <button class="mock-btn secondary" onclick="startMockInterview(${mi},${li},15)">New 15-Question Set</button>
+        </div>
+      </div>
+      <div id="mock-interview-${mi}-${li}">${renderMockInterviewSessionHTML(mi, li)}</div>
     </div>`;
     lesson.interviewQuestions.forEach((iq, qi) => {
       const tags = iq.companies.map(c => `<span class="co-tag co-${c}">${c.charAt(0).toUpperCase()+c.slice(1)}</span>`).join('');
