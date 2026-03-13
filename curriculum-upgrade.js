@@ -154,63 +154,6 @@ FROM products WHERE price > 0;</div>
 <div class="analogy-box">Interview tip: explain both <strong>what your query returns</strong> and <strong>why the logic is safe on edge cases</strong> (NULLs, duplicates, missing joins).</div>
 `;
 
-  const longTheorySections = {
-    datatypes: `
-<h4>Data Types and Storage Notes</h4>
-<p>Pick column types intentionally. Keep IDs as integers, money as numeric/real, and dates in stable ISO format. Mixing number-like text with numeric columns causes wrong sorting and broken comparisons.</p>
-<p>Checklist: verify column type assumptions, convert with CAST only when needed, and avoid implicit conversions in joins and filters.</p>`,
-    nulls: `
-<h4>NULL Behavior Notes</h4>
-<p>NULL means unknown value, not empty string and not zero. Arithmetic with NULL gives NULL, so use COALESCE in reporting metrics. Use IS NULL / IS NOT NULL and never use <code>= NULL</code>.</p>`,
-    joins: `
-<h4>Join Strategy Notes</h4>
-<p>Before writing joins, define expected relationship: 1:1, 1:N, or N:N. Validate row counts before and after join to catch duplication bugs early. Prefer explicit aliases and keep join conditions readable.</p>`,
-    agg: `
-<h4>Aggregation and Grain Notes</h4>
-<p>Decide report grain first (per customer, per order, per month). Then aggregate exactly to that grain. If you aggregate too early or too late, totals become incorrect.</p>`,
-    window: `
-<h4>Window Function Notes</h4>
-<p>Use window functions when you need row-level detail plus group-level calculations at the same time. Add <code>PARTITION BY</code> for grouping and <code>ORDER BY</code> for sequence-based logic.</p>`,
-    cte: `
-<h4>CTE and Query Design Notes</h4>
-<p>Break long SQL into named blocks with WITH clauses. Each CTE should solve one clear sub-problem. This improves debugging and interview explanation quality.</p>`,
-    perf: `
-<h4>Performance Notes</h4>
-<p>Filter early, project only required columns, and avoid unnecessary DISTINCT. Validate with explain-plan thinking: index usage, scan size, and join order.</p>`,
-    interview: `
-<h4>Interview Framing Notes</h4>
-<p>In interviews, explain assumptions, expected output grain, and edge-case handling before final SQL. Mention one optimization tradeoff and one data-quality check.</p>`
-  };
-
-  function buildLongTheory(lesson) {
-    const text = `${lesson.title || ''} ${lesson.sub || ''} ${(lesson.tags || []).join(' ')}`.toLowerCase();
-    const picks = [];
-
-    picks.push(longTheorySections.datatypes);
-    picks.push(longTheorySections.nulls);
-
-    if (/\bjoin|relationship|key|foreign|pk|fk\b/.test(text)) picks.push(longTheorySections.joins);
-    if (/\bgroup|aggregate|count|sum|avg|having\b/.test(text)) picks.push(longTheorySections.agg);
-    if (/\bwindow|rank|dense_rank|row_number|lag|lead|running\b/.test(text)) picks.push(longTheorySections.window);
-    if (/\bcte|subquery|with\b/.test(text)) picks.push(longTheorySections.cte);
-    if (/\binterview|project|optimization|index|performance|debug\b/.test(text)) picks.push(longTheorySections.perf);
-    if ((lesson.tags || []).includes('interview')) picks.push(longTheorySections.interview);
-
-    return `
-<div class="theory-block">
-  <div class="block-title blue">Long Notes</div>
-  <p><strong>Learning Objective:</strong> master this lesson deeply enough to explain it, implement it, debug it, and optimize it.</p>
-  ${picks.join('\n')}
-  <h4>Common Mistakes and Fixes</h4>
-  <p>1) Wrong grouping grain -> define the output grain before writing SQL. 2) Null bugs -> wrap metrics in COALESCE where needed. 3) Duplicate rows after joins -> validate keys and counts at each step.</p>
-  <h4>Revision Questions</h4>
-  <p>What problem does this SQL pattern solve? When should you avoid it? What is the performance tradeoff? How would you explain this to a non-technical stakeholder?</p>
-  <h4>Implementation Checklist</h4>
-  <p>Confirm schema assumptions, write minimal correct query, validate with sample rows, add edge-case handling, then optimize for readability and speed.</p>
-</div>
-`;
-  }
-
   const extraChallengeTemplates = [
     () => ch('Extra Drill', 'Top 5 highest priced active products', 'Return product name and price ordered desc.', 'ORDER BY price DESC LIMIT 5', 'SELECT name, price FROM products WHERE is_active=1 ORDER BY price DESC LIMIT 5;', (r) => r && r.length > 0 && r.length <= 5, 35),
     () => ch('Extra Drill', 'City-wise customer count', 'Return city and customer count.', 'GROUP BY city', 'SELECT city, COUNT(*) AS total_customers FROM customers GROUP BY city ORDER BY total_customers DESC;', (r) => r && r.length > 0 && Object.prototype.hasOwnProperty.call(r[0], 'total_customers'), 40),
@@ -282,7 +225,7 @@ FROM products WHERE price > 0;</div>
 
   function enrichLesson(lesson, mi, li) {
     if (!lesson.__longTheoryInjected) {
-      lesson.theory = (lesson.theory || '') + supplementalTheory + deepTheoryAddon + buildLongTheory(lesson);
+      lesson.theory = (lesson.theory || '') + supplementalTheory + deepTheoryAddon;
       lesson.__longTheoryInjected = true;
     }
     if (!Array.isArray(lesson.challenges)) lesson.challenges = [];
