@@ -22,6 +22,13 @@
 
   let authSession = null;
   let subscriptionState = { status: 'free', plan: 'free' };
+  let appliedPromoCode = '';
+  let promoPricing = {
+    originalAmount: Math.round(Number(appConfig.subscriptionAmountInr || 1499) * 100),
+    discountAmount: 0,
+    finalAmount: Math.round(Number(appConfig.subscriptionAmountInr || 1499) * 100),
+    currency: 'INR',
+  };
 
   function parseJsonSafe(value, fallback) {
     try {
@@ -46,6 +53,10 @@
 
   function getAccessToken() {
     return authSession && authSession.access_token ? authSession.access_token : null;
+  }
+
+  function formatInrFromPaise(paise) {
+    return Math.round(Number(paise || 0) / 100);
   }
 
   async function api(path, options) {
@@ -131,6 +142,17 @@
         <div class="sub-price">INR <span id="sub-price-value">${Number(appConfig.subscriptionAmountInr || 1499)}</span> / year</div>
         <div class="sub-list">Free access: only Module 1, first ${FREE_LESSON_COUNT} lessons. Upgrade to unlock all remaining lessons, projects, and interview prep.</div>
         <div class="sub-methods">Payment methods: UPI, Cards, Netbanking, Wallets</div>
+        <div class="promo-row">
+          <input id="promo-code-input" class="promo-input" placeholder="Have a promo code? (example: SAVE1000)" />
+          <button class="promo-apply" onclick="applyPromoCode()">Apply</button>
+          <button class="promo-clear" onclick="clearPromoCode()">Clear</button>
+        </div>
+        <div class="promo-msg" id="promo-msg"></div>
+        <div class="promo-breakdown" id="promo-breakdown">
+          <div>Original: <b id="promo-original">INR ${Number(appConfig.subscriptionAmountInr || 1499)}</b></div>
+          <div>Discount: <b id="promo-discount">INR 0</b></div>
+          <div>Payable: <b id="promo-final">INR ${Number(appConfig.subscriptionAmountInr || 1499)}</b></div>
+        </div>
         <div class="sub-actions">
           <button class="btn-sub btn-sub-cancel" onclick="closeSubscriptionModal()">Maybe Later</button>
           <button class="btn-sub btn-sub-pay" id="sub-pay-btn" onclick="startSubscriptionCheckout()">Pay & Unlock</button>
@@ -143,6 +165,25 @@
     });
 
     document.body.appendChild(wrap);
+  }
+
+  function updatePromoBreakdownUi() {
+    const o = document.getElementById('promo-original');
+    const d = document.getElementById('promo-discount');
+    const f = document.getElementById('promo-final');
+    const p = document.getElementById('sub-price-value');
+    if (o) o.textContent = `INR ${formatInrFromPaise(promoPricing.originalAmount)}`;
+    if (d) d.textContent = `INR ${formatInrFromPaise(promoPricing.discountAmount)}`;
+    if (f) f.textContent = `INR ${formatInrFromPaise(promoPricing.finalAmount)}`;
+    if (p) p.textContent = String(formatInrFromPaise(promoPricing.finalAmount));
+  }
+
+  function setPromoMessage(text, ok) {
+    const el = document.getElementById('promo-msg');
+    if (!el) return;
+    el.textContent = text || '';
+    el.classList.toggle('ok', !!ok);
+    el.classList.toggle('err', !!text && !ok);
   }
 
   function showInlineMessage(containerId, text, type) {
@@ -161,12 +202,69 @@
     }
     ensureSubscriptionModal();
     const overlay = document.getElementById('subscription-modal');
+    promoPricing = {
+      originalAmount: Math.round(Number(appConfig.subscriptionAmountInr || 1499) * 100),
+      discountAmount: 0,
+      finalAmount: Math.round(Number(appConfig.subscriptionAmountInr || 1499) * 100),
+      currency: 'INR',
+    };
+    appliedPromoCode = '';
+    const input = document.getElementById('promo-code-input');
+    if (input) input.value = '';
+    setPromoMessage('', true);
+    updatePromoBreakdownUi();
     overlay.style.display = 'flex';
   };
 
   window.closeSubscriptionModal = function () {
     const overlay = document.getElementById('subscription-modal');
     if (overlay) overlay.style.display = 'none';
+  };
+
+  window.applyPromoCode = async function () {
+    const input = document.getElementById('promo-code-input');
+    const code = (input && input.value ? input.value : '').trim();
+    if (!code) {
+      setPromoMessage('Enter a promo code first.', false);
+      return;
+    }
+    try {
+      setPromoMessage('Validating promo code...', true);
+      const data = await api('/validate-promo', { method: 'POST', body: { promoCode: code }, auth: true });
+      appliedPromoCode = data.promoCodeApplied || '';
+      promoPricing = {
+        originalAmount: data.originalAmount,
+        discountAmount: data.discountAmount,
+        finalAmount: data.finalAmount,
+        currency: data.currency || 'INR',
+      };
+      updatePromoBreakdownUi();
+      setPromoMessage(`Promo applied: ${appliedPromoCode} (INR ${formatInrFromPaise(promoPricing.discountAmount)} off)`, true);
+    } catch (err) {
+      appliedPromoCode = '';
+      promoPricing = {
+        originalAmount: Math.round(Number(appConfig.subscriptionAmountInr || 1499) * 100),
+        discountAmount: 0,
+        finalAmount: Math.round(Number(appConfig.subscriptionAmountInr || 1499) * 100),
+        currency: 'INR',
+      };
+      updatePromoBreakdownUi();
+      setPromoMessage(err.message || 'Invalid promo code.', false);
+    }
+  };
+
+  window.clearPromoCode = function () {
+    appliedPromoCode = '';
+    promoPricing = {
+      originalAmount: Math.round(Number(appConfig.subscriptionAmountInr || 1499) * 100),
+      discountAmount: 0,
+      finalAmount: Math.round(Number(appConfig.subscriptionAmountInr || 1499) * 100),
+      currency: 'INR',
+    };
+    const input = document.getElementById('promo-code-input');
+    if (input) input.value = '';
+    updatePromoBreakdownUi();
+    setPromoMessage('Promo code removed.', true);
   };
 
   window.startSubscriptionCheckout = async function () {
@@ -177,7 +275,19 @@
       btn.disabled = true;
       btn.textContent = 'Preparing payment...';
 
-      const order = await api('/create-subscription-order', { method: 'POST', body: { plan: 'pro' }, auth: true });
+      const order = await api('/create-subscription-order', {
+        method: 'POST',
+        body: { plan: 'pro', promoCode: appliedPromoCode || '' },
+        auth: true,
+      });
+      promoPricing = {
+        originalAmount: order.originalAmount || Math.round(Number(appConfig.subscriptionAmountInr || 1499) * 100),
+        discountAmount: order.discountAmount || 0,
+        finalAmount: order.amount || Math.round(Number(appConfig.subscriptionAmountInr || 1499) * 100),
+        currency: order.currency || 'INR',
+      };
+      appliedPromoCode = order.promoCodeApplied || '';
+      updatePromoBreakdownUi();
 
       if (!window.Razorpay) throw new Error('Razorpay SDK not loaded.');
       if (!appConfig.razorpayKeyId) throw new Error('Missing Razorpay key id in env.');
@@ -211,6 +321,7 @@
                 razorpay_payment_id: payment.razorpay_payment_id,
                 razorpay_signature: payment.razorpay_signature,
                 plan: 'pro',
+                promoCode: appliedPromoCode || '',
               },
               auth: true,
             });
@@ -462,9 +573,143 @@
     URL.revokeObjectURL(url);
   };
 
+  function ensurePromoAdminUi() {
+    const adminContent = document.querySelector('#admin-screen .admin-content');
+    if (!adminContent || document.getElementById('promo-admin-wrap')) return;
+    const stats = adminContent.querySelector('.admin-stats-row');
+    const wrap = document.createElement('div');
+    wrap.id = 'promo-admin-wrap';
+    wrap.className = 'admin-table-wrap';
+    wrap.style.marginBottom = '18px';
+    wrap.innerHTML = `
+      <div class="admin-table-title">
+        <span>Promo Codes</span>
+        <button class="admin-refresh" onclick="loadPromoCodes()">Refresh Promos</button>
+      </div>
+      <div style="padding:14px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="promo-new-code" class="promo-admin-input" placeholder="CODE (e.g. SAVE1000)" />
+        <select id="promo-new-type" class="admin-mini-select">
+          <option value="flat">flat INR</option>
+          <option value="percent">percent</option>
+        </select>
+        <input id="promo-new-value" class="promo-admin-input short" type="number" min="1" placeholder="Discount" />
+        <input id="promo-new-max-uses" class="promo-admin-input short" type="number" min="1" placeholder="Max uses (optional)" />
+        <button class="admin-refresh" onclick="createPromoCode()">Create Promo</button>
+        <span id="promo-admin-msg" style="font-size:0.72rem;color:var(--muted2)"></span>
+      </div>
+      <div style="overflow:auto">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Code</th><th>Type</th><th>Discount</th><th>Usage</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="promo-admin-tbody">
+            <tr><td colspan="6" style="color:var(--muted);padding:14px">Loading promo codes...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+    if (stats && stats.nextSibling) adminContent.insertBefore(wrap, stats.nextSibling);
+    else adminContent.appendChild(wrap);
+  }
+
+  function setPromoAdminMsg(text, ok) {
+    const el = document.getElementById('promo-admin-msg');
+    if (!el) return;
+    el.textContent = text || '';
+    el.style.color = ok ? '#10e078' : '#f43f5e';
+  }
+
+  window.loadPromoCodes = async function () {
+    const tbody = document.getElementById('promo-admin-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted);padding:14px">Loading...</td></tr>';
+    try {
+      const data = await api('/admin-action', { method: 'POST', body: { action: 'list_promos' }, auth: true });
+      const promos = data.promos || [];
+      if (promos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted);padding:14px">No promo codes yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = promos.map((p) => `
+        <tr>
+          <td><strong>${p.code}</strong></td>
+          <td>${p.discount_type}</td>
+          <td>
+            <input class="promo-admin-input short" type="number" min="1" value="${p.discount_value}" id="promo-disc-${p.id}" />
+            ${p.discount_type === 'percent' ? '<span style="font-size:0.7rem;color:var(--muted)">%</span>' : '<span style="font-size:0.7rem;color:var(--muted)">INR</span>'}
+          </td>
+          <td>${p.used_count || 0}${p.max_uses ? ` / ${p.max_uses}` : ''}</td>
+          <td>${p.is_active ? '<span class="admin-badge badge-active">active</span>' : '<span class="admin-badge" style="background:#64748b20;color:#94a3b8">inactive</span>'}</td>
+          <td style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="admin-refresh" onclick="updatePromoDiscount('${p.id}')">Save Discount</button>
+            <button class="btn-admin-del" style="border-color:${p.is_active ? '#f59e0b40' : '#10e07840'};color:${p.is_active ? '#f59e0b' : '#10e078'}" onclick="togglePromoCode('${p.id}', ${!p.is_active})">${p.is_active ? 'Deactivate' : 'Activate'}</button>
+          </td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--red);padding:14px">${err.message || 'Failed to load promo codes.'}</td></tr>`;
+    }
+  };
+
+  window.createPromoCode = async function () {
+    const code = (document.getElementById('promo-new-code')?.value || '').trim();
+    const discountType = document.getElementById('promo-new-type')?.value || 'flat';
+    const discountValue = Number(document.getElementById('promo-new-value')?.value || 0);
+    const maxUsesRaw = document.getElementById('promo-new-max-uses')?.value || '';
+    const maxUses = maxUsesRaw ? Number(maxUsesRaw) : null;
+    if (!code || discountValue <= 0) {
+      setPromoAdminMsg('Enter valid code and discount.', false);
+      return;
+    }
+    try {
+      await api('/admin-action', {
+        method: 'POST',
+        body: { action: 'create_promo', code, discountType, discountValue, maxUses },
+        auth: true,
+      });
+      setPromoAdminMsg('Promo code created.', true);
+      document.getElementById('promo-new-code').value = '';
+      document.getElementById('promo-new-value').value = '';
+      document.getElementById('promo-new-max-uses').value = '';
+      await loadPromoCodes();
+    } catch (err) {
+      setPromoAdminMsg(err.message || 'Failed to create promo.', false);
+    }
+  };
+
+  window.togglePromoCode = async function (promoId, isActive) {
+    try {
+      await api('/admin-action', { method: 'POST', body: { action: 'update_promo', promoId, isActive }, auth: true });
+      setPromoAdminMsg(`Promo ${isActive ? 'activated' : 'deactivated'}.`, true);
+      await loadPromoCodes();
+    } catch (err) {
+      setPromoAdminMsg(err.message || 'Failed to update promo.', false);
+    }
+  };
+
+  window.updatePromoDiscount = async function (promoId) {
+    const el = document.getElementById(`promo-disc-${promoId}`);
+    const discountValue = Number(el?.value || 0);
+    if (discountValue <= 0) {
+      setPromoAdminMsg('Discount must be greater than 0.', false);
+      return;
+    }
+    try {
+      await api('/admin-action', { method: 'POST', body: { action: 'update_promo', promoId, discountValue }, auth: true });
+      setPromoAdminMsg('Promo discount updated.', true);
+      await loadPromoCodes();
+    } catch (err) {
+      setPromoAdminMsg(err.message || 'Failed to update discount.', false);
+    }
+  };
+
   window.loadAdminData = async function () {
     const tbody = document.getElementById('admin-user-tbody');
     if (!tbody) return;
+    ensurePromoAdminUi();
+    await loadPromoCodes();
 
     tbody.innerHTML = '<tr><td colspan="8" style="color:var(--muted);padding:20px;text-align:center">Loading...</td></tr>';
     const users = await getAllUsers();
@@ -649,12 +894,22 @@
       .sub-price{font-family:'IBM Plex Mono',monospace;font-size:22px;color:#00d4ff;margin-bottom:12px}
       .sub-list{font-size:14px;line-height:1.7;color:#cbd5e1;margin-bottom:8px}
       .sub-methods{font-size:13px;color:#fbbf24;margin-bottom:18px}
+      .promo-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+      .promo-input{flex:1;min-width:220px;background:#0b1220;border:1px solid #334155;border-radius:8px;padding:9px 10px;color:#e2e8f0;font-size:13px;font-family:'Cabinet Grotesk',sans-serif}
+      .promo-apply,.promo-clear{border:1px solid #334155;background:#1e293b;color:#cbd5e1;border-radius:8px;padding:8px 10px;cursor:pointer;font-size:12px;font-weight:700}
+      .promo-apply{background:#0f766e;border-color:#14b8a6;color:#ecfeff}
+      .promo-msg{font-size:12px;min-height:16px;margin-bottom:8px}
+      .promo-msg.ok{color:#10e078}
+      .promo-msg.err{color:#f43f5e}
+      .promo-breakdown{border:1px dashed #334155;border-radius:8px;padding:8px 10px;font-size:12px;color:#cbd5e1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
       .sub-actions{display:flex;gap:10px;justify-content:flex-end}
       .btn-sub{border-radius:10px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;border:none}
       .btn-sub-cancel{background:#1f2937;color:#cbd5e1;border:1px solid #334155}
       .btn-sub-pay{background:linear-gradient(135deg,#00d4ff,#3a86ff);color:#031322}
       .admin-mini-select{background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:3px 8px;font-size:0.72rem;font-family:'Cabinet Grotesk',sans-serif}
-      @media (max-width: 640px){.sub-title{font-size:22px}.sub-card{padding:20px}.sub-actions{flex-direction:column}.btn-sub{width:100%}}
+      .promo-admin-input{background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:6px 8px;font-size:0.72rem;font-family:'Cabinet Grotesk',sans-serif;min-width:170px}
+      .promo-admin-input.short{min-width:110px;max-width:130px}
+      @media (max-width: 640px){.sub-title{font-size:22px}.sub-card{padding:20px}.sub-actions{flex-direction:column}.btn-sub{width:100%}.promo-breakdown{grid-template-columns:1fr}}
     `;
     document.head.appendChild(style);
   }

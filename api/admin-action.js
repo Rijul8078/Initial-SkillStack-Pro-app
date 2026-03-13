@@ -6,6 +6,9 @@ const handlers = {
   set_suspension: require('../netlify/functions/admin-set-suspension').handler,
   update_subscription: require('../netlify/functions/admin-update-subscription').handler,
   reset_progress: require('../netlify/functions/admin-reset-progress').handler,
+  list_promos: require('../netlify/functions/admin-promo-code').handler,
+  create_promo: require('../netlify/functions/admin-promo-code').handler,
+  update_promo: require('../netlify/functions/admin-promo-code').handler,
 };
 
 module.exports = async (req, res) => {

@@ -30,7 +30,36 @@ create table if not exists public.subscriptions (
   razorpay_order_id text,
   razorpay_payment_id text,
   amount integer,
+  original_amount integer,
+  promo_code text,
+  discount_amount integer,
   currency text default 'INR',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.subscriptions
+add column if not exists original_amount integer;
+
+alter table public.subscriptions
+add column if not exists promo_code text;
+
+alter table public.subscriptions
+add column if not exists discount_amount integer;
+
+create table if not exists public.promo_codes (
+  id uuid primary key default gen_random_uuid(),
+  code text not null unique,
+  description text,
+  discount_type text not null default 'flat' check (discount_type in ('flat', 'percent')),
+  discount_value integer not null check (discount_value > 0),
+  max_discount_inr integer,
+  is_active boolean not null default true,
+  starts_at timestamptz,
+  ends_at timestamptz,
+  max_uses integer,
+  used_count integer not null default 0,
+  created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -48,9 +77,15 @@ create trigger trg_subscriptions_updated_at
 before update on public.subscriptions
 for each row execute function public.update_updated_at_column();
 
+drop trigger if exists trg_promo_codes_updated_at on public.promo_codes;
+create trigger trg_promo_codes_updated_at
+before update on public.promo_codes
+for each row execute function public.update_updated_at_column();
+
 alter table public.profiles enable row level security;
 alter table public.user_progress enable row level security;
 alter table public.subscriptions enable row level security;
+alter table public.promo_codes enable row level security;
 
 -- Profiles policies
 drop policy if exists "Users can read own profile" on public.profiles;
@@ -84,6 +119,12 @@ drop policy if exists "Users can read own subscription" on public.subscriptions;
 create policy "Users can read own subscription"
 on public.subscriptions for select
 using (auth.uid() = user_id);
+
+drop policy if exists "Promo codes are service-only" on public.promo_codes;
+create policy "Promo codes are service-only"
+on public.promo_codes for all
+using (false)
+with check (false);
 
 -- Optional: make your account admin
 -- update public.profiles set role = 'admin' where id = '<your-auth-user-id>';
