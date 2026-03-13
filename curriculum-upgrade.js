@@ -154,6 +154,63 @@ FROM products WHERE price > 0;</div>
 <div class="analogy-box">Interview tip: explain both <strong>what your query returns</strong> and <strong>why the logic is safe on edge cases</strong> (NULLs, duplicates, missing joins).</div>
 `;
 
+  const longTheorySections = {
+    datatypes: `
+<h4>Data Types and Storage Notes</h4>
+<p>Pick column types intentionally. Keep IDs as integers, money as numeric/real, and dates in stable ISO format. Mixing number-like text with numeric columns causes wrong sorting and broken comparisons.</p>
+<p>Checklist: verify column type assumptions, convert with CAST only when needed, and avoid implicit conversions in joins and filters.</p>`,
+    nulls: `
+<h4>NULL Behavior Notes</h4>
+<p>NULL means unknown value, not empty string and not zero. Arithmetic with NULL gives NULL, so use COALESCE in reporting metrics. Use IS NULL / IS NOT NULL and never use <code>= NULL</code>.</p>`,
+    joins: `
+<h4>Join Strategy Notes</h4>
+<p>Before writing joins, define expected relationship: 1:1, 1:N, or N:N. Validate row counts before and after join to catch duplication bugs early. Prefer explicit aliases and keep join conditions readable.</p>`,
+    agg: `
+<h4>Aggregation and Grain Notes</h4>
+<p>Decide report grain first (per customer, per order, per month). Then aggregate exactly to that grain. If you aggregate too early or too late, totals become incorrect.</p>`,
+    window: `
+<h4>Window Function Notes</h4>
+<p>Use window functions when you need row-level detail plus group-level calculations at the same time. Add <code>PARTITION BY</code> for grouping and <code>ORDER BY</code> for sequence-based logic.</p>`,
+    cte: `
+<h4>CTE and Query Design Notes</h4>
+<p>Break long SQL into named blocks with WITH clauses. Each CTE should solve one clear sub-problem. This improves debugging and interview explanation quality.</p>`,
+    perf: `
+<h4>Performance Notes</h4>
+<p>Filter early, project only required columns, and avoid unnecessary DISTINCT. Validate with explain-plan thinking: index usage, scan size, and join order.</p>`,
+    interview: `
+<h4>Interview Framing Notes</h4>
+<p>In interviews, explain assumptions, expected output grain, and edge-case handling before final SQL. Mention one optimization tradeoff and one data-quality check.</p>`
+  };
+
+  function buildLongTheory(lesson) {
+    const text = `${lesson.title || ''} ${lesson.sub || ''} ${(lesson.tags || []).join(' ')}`.toLowerCase();
+    const picks = [];
+
+    picks.push(longTheorySections.datatypes);
+    picks.push(longTheorySections.nulls);
+
+    if (/\bjoin|relationship|key|foreign|pk|fk\b/.test(text)) picks.push(longTheorySections.joins);
+    if (/\bgroup|aggregate|count|sum|avg|having\b/.test(text)) picks.push(longTheorySections.agg);
+    if (/\bwindow|rank|dense_rank|row_number|lag|lead|running\b/.test(text)) picks.push(longTheorySections.window);
+    if (/\bcte|subquery|with\b/.test(text)) picks.push(longTheorySections.cte);
+    if (/\binterview|project|optimization|index|performance|debug\b/.test(text)) picks.push(longTheorySections.perf);
+    if ((lesson.tags || []).includes('interview')) picks.push(longTheorySections.interview);
+
+    return `
+<div class="theory-block">
+  <div class="block-title blue">Long Notes</div>
+  <p><strong>Learning Objective:</strong> master this lesson deeply enough to explain it, implement it, debug it, and optimize it.</p>
+  ${picks.join('\n')}
+  <h4>Common Mistakes and Fixes</h4>
+  <p>1) Wrong grouping grain -> define the output grain before writing SQL. 2) Null bugs -> wrap metrics in COALESCE where needed. 3) Duplicate rows after joins -> validate keys and counts at each step.</p>
+  <h4>Revision Questions</h4>
+  <p>What problem does this SQL pattern solve? When should you avoid it? What is the performance tradeoff? How would you explain this to a non-technical stakeholder?</p>
+  <h4>Implementation Checklist</h4>
+  <p>Confirm schema assumptions, write minimal correct query, validate with sample rows, add edge-case handling, then optimize for readability and speed.</p>
+</div>
+`;
+  }
+
   const extraChallengeTemplates = [
     () => ch('Extra Drill', 'Top 5 highest priced active products', 'Return product name and price ordered desc.', 'ORDER BY price DESC LIMIT 5', 'SELECT name, price FROM products WHERE is_active=1 ORDER BY price DESC LIMIT 5;', (r) => r && r.length > 0 && r.length <= 5, 35),
     () => ch('Extra Drill', 'City-wise customer count', 'Return city and customer count.', 'GROUP BY city', 'SELECT city, COUNT(*) AS total_customers FROM customers GROUP BY city ORDER BY total_customers DESC;', (r) => r && r.length > 0 && Object.prototype.hasOwnProperty.call(r[0], 'total_customers'), 40),
@@ -164,6 +221,52 @@ FROM products WHERE price > 0;</div>
     () => ch('Extra Drill', 'Low stock alert', 'Return products with stock <= 20.', 'Use <= filter', 'SELECT id, name, stock FROM products WHERE stock <= 20 ORDER BY stock ASC;', (r) => Array.isArray(r), 30),
     () => ch('Extra Drill', 'Order status distribution', 'Return status and count of orders.', 'GROUP BY status', 'SELECT status, COUNT(*) AS total_orders FROM orders GROUP BY status ORDER BY total_orders DESC;', (r) => r && r.length > 0, 35),
   ];
+
+  function longTaskTemplates(mi, li) {
+    return [
+      ch(
+        'Long Task',
+        'Business KPI Pack',
+        'Create a single result set (using CTEs) that includes monthly revenue, monthly order count, average order value, and active customer count for each month. Return results ordered by month and include clear aliases.',
+        "Use WITH monthly_orders AS (...) and compute each KPI in separate CTE blocks before final SELECT.",
+        "WITH monthly_orders AS (SELECT strftime('%Y-%m', o.order_date) AS month_key, o.id AS order_id, o.customer_id, SUM(oi.quantity*oi.unit_price) AS order_revenue FROM orders o JOIN order_items oi ON oi.order_id=o.id GROUP BY month_key, o.id, o.customer_id), month_kpis AS (SELECT month_key, ROUND(SUM(order_revenue),2) AS monthly_revenue, COUNT(order_id) AS monthly_orders, ROUND(AVG(order_revenue),2) AS avg_order_value, COUNT(DISTINCT customer_id) AS active_customers FROM monthly_orders GROUP BY month_key) SELECT month_key, monthly_revenue, monthly_orders, avg_order_value, active_customers FROM month_kpis ORDER BY month_key;",
+        (r) => Array.isArray(r) && r.length > 0,
+        120 + (mi % 3) * 10
+      ),
+      ch(
+        'Long Task',
+        'Data Quality + Root Cause',
+        'Build a data quality query that flags suspicious records: null critical fields, negative quantity/price, impossible dates, and duplicate business keys. Return issue_type, record_id, and details.',
+        "Use UNION ALL across multiple checks and assign an issue_type label in each SELECT.",
+        "SELECT 'NULL_FIELD' AS issue_type, CAST(id AS TEXT) AS record_id, 'orders.customer_id is null' AS details FROM orders WHERE customer_id IS NULL UNION ALL SELECT 'NEGATIVE_VALUE', CAST(id AS TEXT), 'order_items has negative quantity or price' FROM order_items WHERE quantity < 0 OR unit_price < 0 UNION ALL SELECT 'INVALID_DATE', CAST(id AS TEXT), 'order_date malformed' FROM orders WHERE order_date NOT LIKE '____-__-__' UNION ALL SELECT 'DUPLICATE_EMAIL', CAST(MIN(id) AS TEXT), 'duplicate customer email' FROM customers GROUP BY email HAVING COUNT(*) > 1;",
+        (r) => Array.isArray(r),
+        130 + (li % 4) * 10
+      )
+    ];
+  }
+
+  function projectTaskTemplates() {
+    return [
+      ch(
+        'Project',
+        'Executive Dashboard Project',
+        'Design an executive SQL dashboard pack with at least 6 widgets: revenue trend, top categories, returning customer %, city performance, discount impact, and top products. Submit as one multi-CTE query bundle with documented assumptions.',
+        'Start with base CTEs: order_fact, customer_fact, product_fact. Then derive widget-specific CTEs and union/return outputs.',
+        "WITH order_fact AS (SELECT o.id, o.customer_id, strftime('%Y-%m', o.order_date) AS month_key, SUM(oi.quantity*oi.unit_price) AS revenue FROM orders o JOIN order_items oi ON oi.order_id=o.id GROUP BY o.id, o.customer_id, month_key), customer_orders AS (SELECT customer_id, COUNT(*) AS orders_count, SUM(revenue) AS lifetime_revenue FROM order_fact GROUP BY customer_id), month_rev AS (SELECT month_key, ROUND(SUM(revenue),2) AS revenue FROM order_fact GROUP BY month_key), top_products AS (SELECT p.name, ROUND(SUM(oi.quantity*oi.unit_price),2) AS rev FROM order_items oi JOIN products p ON p.id=oi.product_id GROUP BY p.id, p.name ORDER BY rev DESC LIMIT 10) SELECT * FROM month_rev;",
+        (r) => Array.isArray(r) && r.length > 0,
+        220
+      ),
+      ch(
+        'Project',
+        'Optimization and Explain Plan Task',
+        'Take one heavy analytical query and optimize it. Provide baseline logic, optimized logic, and reasoning for index strategy and expected performance impact.',
+        'Reduce repeated scans with CTE reuse, avoid SELECT *, and add useful filter predicates.',
+        "WITH spend AS (SELECT o.customer_id, SUM(oi.quantity*oi.unit_price) AS total_spend FROM orders o JOIN order_items oi ON oi.order_id=o.id GROUP BY o.customer_id), ranked AS (SELECT c.name, c.city, s.total_spend, DENSE_RANK() OVER (PARTITION BY c.city ORDER BY s.total_spend DESC) AS city_rank FROM spend s JOIN customers c ON c.id=s.customer_id) SELECT name, city, total_spend FROM ranked WHERE city_rank <= 3 ORDER BY city, total_spend DESC;",
+        (r) => Array.isArray(r),
+        240
+      )
+    ];
+  }
 
   function cloneChallenge(c) {
     return {
@@ -178,14 +281,25 @@ FROM products WHERE price > 0;</div>
   }
 
   function enrichLesson(lesson, mi, li) {
-    lesson.theory = (lesson.theory || '') + supplementalTheory + deepTheoryAddon;
+    if (!lesson.__longTheoryInjected) {
+      lesson.theory = (lesson.theory || '') + supplementalTheory + deepTheoryAddon + buildLongTheory(lesson);
+      lesson.__longTheoryInjected = true;
+    }
     if (!Array.isArray(lesson.challenges)) lesson.challenges = [];
 
-    const minChallengesPerLesson = 6;
+    const minChallengesPerLesson = 8;
     const needed = Math.max(0, minChallengesPerLesson - lesson.challenges.length);
     for (let i = 0; i < needed; i++) {
       const idx = (mi * 7 + li + i) % extraChallengeTemplates.length;
       lesson.challenges.push(cloneChallenge(extraChallengeTemplates[idx]()));
+    }
+
+    if (!lesson.__longTasksInjected) {
+      longTaskTemplates(mi, li).forEach((task) => lesson.challenges.push(cloneChallenge(task)));
+      if ((lesson.tags || []).includes('project') || (lesson.tags || []).includes('interview')) {
+        projectTaskTemplates().forEach((task) => lesson.challenges.push(cloneChallenge(task)));
+      }
+      lesson.__longTasksInjected = true;
     }
   }
 
