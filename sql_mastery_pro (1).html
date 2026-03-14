@@ -335,6 +335,22 @@ table.rt tr:hover td{background:#ffffff05}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .welcome-title{font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;margin-bottom:12px;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .welcome-sub{color:var(--muted2);font-size:0.95rem;line-height:1.7;max-width:500px;margin-bottom:24px}
+.track-hub{width:min(980px,100%);margin:0 auto 16px}
+.track-hub-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.track-hub-title{font-size:.8rem;font-weight:800;letter-spacing:1px;color:#7dd3fc;text-transform:uppercase}
+.track-hub-sub{font-size:.72rem;color:var(--muted)}
+.track-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.track-card{background:linear-gradient(145deg,#0f172a,#111827);border:1px solid #334155;border-radius:12px;padding:12px;text-align:left}
+.track-card.active{border-color:#22d3ee;box-shadow:0 0 0 1px #22d3ee40 inset}
+.track-name{font-size:.84rem;font-weight:800;color:#e2e8f0;margin-bottom:4px}
+.track-desc{font-size:.72rem;color:#94a3b8;line-height:1.45;min-height:34px}
+.track-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.track-pill{font-size:.64rem;padding:2px 8px;border-radius:999px;border:1px solid #334155;color:#cbd5e1}
+.track-pill.live{border-color:#10b981;color:#10e078;background:#10b9811f}
+.track-btn{border:1px solid #334155;background:#1e293b;color:#cbd5e1;border-radius:8px;padding:5px 10px;font-size:.68rem;font-weight:700;cursor:pointer}
+.track-btn.active{background:#155e75;border-color:#22d3ee;color:#ecfeff}
+.track-msg{font-size:.72rem;color:#fbbf24;margin-top:8px;min-height:16px}
+@media (max-width:900px){.track-grid{grid-template-columns:1fr}}
 .welcome-stats{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
 .stat-pill{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 20px;text-align:center}
 .stat-num{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;color:var(--accent)}
@@ -566,6 +582,14 @@ table.rt tr:hover td{background:#ffffff05}
         <div class="welcome-icon">🚀</div>
         <div class="welcome-title">Become a SkillStack Champion</div>
         <div class="welcome-sub">Master the SQL Track from zero to interview-ready, then unlock more programming tracks with projects and mock interviews.</div>
+        <div class="track-hub">
+          <div class="track-hub-head">
+            <div class="track-hub-title">Multi-Track Hub</div>
+            <div class="track-hub-sub">Choose your learning track. SQL is live now; more tracks are being expanded.</div>
+          </div>
+          <div class="track-grid" id="track-grid"></div>
+          <div class="track-msg" id="track-msg"></div>
+        </div>
         <div class="welcome-stats">
           <div class="stat-pill"><div class="stat-num">36</div><div class="stat-lbl">Lessons</div></div>
           <div class="stat-pill"><div class="stat-num">86</div><div class="stat-lbl">Challenges</div></div>
@@ -1777,6 +1801,48 @@ let currentLessonPath = null; // {moduleIdx, lessonIdx}
 let completedChallenges = {}; // key: "m-l-ch" -> true
 let xp = 0;
 let totalLessons = MODULES.reduce((s,m) => s + m.lessons.length, 0);
+let activeTrackId = 'sql';
+const TRACKS = [
+  { id: 'sql', name: 'SQL Track', status: 'live', desc: 'Zero to interview-ready SQL with projects and mock rounds.' },
+  { id: 'python', name: 'Python Track', status: 'expanding', desc: 'Data handling, scripting, and interview coding patterns.' },
+  { id: 'javascript', name: 'JavaScript Track', status: 'expanding', desc: 'Core JS, async patterns, and backend/frontend foundations.' }
+];
+
+function renderTrackHub() {
+  const grid = document.getElementById('track-grid');
+  if (!grid) return;
+  grid.innerHTML = TRACKS.map((t) => `
+    <div class="track-card ${t.id === activeTrackId ? 'active' : ''}">
+      <div class="track-name">${t.name}</div>
+      <div class="track-desc">${t.desc}</div>
+      <div class="track-meta">
+        <span class="track-pill ${t.status === 'live' ? 'live' : ''}">${t.status === 'live' ? 'LIVE' : 'EXPANDING'}</span>
+        <button class="track-btn ${t.id === activeTrackId ? 'active' : ''}" onclick="selectTrack('${t.id}')">${t.id === activeTrackId ? 'Selected' : 'Choose'}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setTrackMessage(text) {
+  const el = document.getElementById('track-msg');
+  if (el) el.textContent = text || '';
+}
+
+window.selectTrack = function (trackId) {
+  const track = TRACKS.find((t) => t.id === trackId);
+  if (!track) return;
+
+  if (track.id !== 'sql') {
+    setTrackMessage(`${track.name} modules are being expanded. SQL Track is live right now.`);
+    renderTrackHub();
+    return;
+  }
+
+  activeTrackId = 'sql';
+  setTrackMessage('SQL Track selected.');
+  renderTrackHub();
+  try { renderSidebar(document.getElementById('search-input')?.value || ''); } catch (_) {}
+};
 const ROADMAP_STEPS = [
   { title: 'SQL Foundations', note: 'Module 1 - first 3 lessons', targetLessons: 3 },
   { title: 'Filtering + Aggregations', note: 'WHERE, GROUP BY, HAVING', targetLessons: 8 },
@@ -2515,6 +2581,7 @@ async function doLogout() {
   document.getElementById('lesson-content').style.display = 'none';
   document.getElementById('lesson-content').innerHTML = '';
   currentLessonPath = null;
+  renderTrackHub();
   renderSidebar();
   showAuthScreen();
   switchAuthTab('login');
@@ -2667,6 +2734,7 @@ async function initApp() {
     }
   }
   try { renderRoadmap(); } catch (err) { console.error('renderRoadmap failed:', err); }
+  try { renderTrackHub(); } catch (err) { console.error('renderTrackHub failed:', err); }
 
   try { renderDBPanel(); } catch (err) { console.error('renderDBPanel failed:', err); }
   try { renderIQPanel(); } catch (err) { console.error('renderIQPanel failed:', err); }
