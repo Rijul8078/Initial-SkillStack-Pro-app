@@ -9,6 +9,7 @@
   const fundamentalsModule = {
     name: 'Foundation Track: SQL Deep Fundamentals',
     icon: 'F',
+    track: 'sql',
     lessons: [
       {
         title: 'Data Types and Type Affinity in Depth',
@@ -140,6 +141,111 @@ FROM products WHERE price > 0;</div>
     ],
   };
 
+  const pythonStarterModule = {
+    name: 'Python Starter Track',
+    icon: 'Py',
+    track: 'python',
+    lessons: [
+      {
+        title: 'Python Fundamentals for Data Work',
+        sub: 'Variables, types, conditionals, loops',
+        diff: 'easy',
+        tags: ['concept', 'python'],
+        schema: ['customers', 'orders'],
+        theory: `
+<p><strong>Python core:</strong> variables, lists, dicts, loops, and conditionals are essential for data scripting.</p>
+<p><strong>Data mindset:</strong> clean input, transform records, then aggregate and validate outputs.</p>
+<div class="syntax-box"># Python idea
+for row in rows:
+    if row["city"] == "Delhi":
+        total += row["amount"]</div>`,
+        challenges: [
+          ch('Python SQL Bridge', 'Filter rows like if-condition logic', 'Return customers from Delhi or Mumbai only.', "WHERE city IN ('Delhi','Mumbai')", "SELECT id, name, city FROM customers WHERE city IN ('Delhi', 'Mumbai');", (r) => Array.isArray(r), 60),
+          ch('Python SQL Bridge', 'Loop + count equivalent', 'Return total customers per city.', 'GROUP BY city', 'SELECT city, COUNT(*) AS total_customers FROM customers GROUP BY city ORDER BY total_customers DESC;', (r) => r && r.length > 0, 70),
+        ],
+      },
+      {
+        title: 'Functions, Reuse, and Data Cleaning',
+        sub: 'Reusable logic and quality checks',
+        diff: 'medium',
+        tags: ['concept', 'python', 'project'],
+        schema: ['customers', 'orders', 'products'],
+        theory: `
+<p>In Python, functions help reuse logic. In SQL analytics, reusable blocks are similar to CTEs and clean transformation steps.</p>
+<p>Always standardize text fields, handle NULLs, and verify key columns before analysis.</p>`,
+        challenges: [
+          ch('Python SQL Bridge', 'Reusable transformation style', 'Create a cleaned customer view with uppercase city and fallback values.', "Use UPPER() + COALESCE()", "SELECT id, name, COALESCE(UPPER(city), 'UNKNOWN') AS city_clean FROM customers;", (r) => r && r.length > 0, 75),
+          ch('Python SQL Bridge', 'Validation function equivalent', 'Return orders with invalid date format.', "order_date NOT LIKE '____-__-__'", "SELECT id, order_date FROM orders WHERE order_date NOT LIKE '____-__-__';", (r) => Array.isArray(r), 65),
+        ],
+      },
+      {
+        title: 'Pandas Mindset with SQL',
+        sub: 'groupby, merge, transform equivalents',
+        diff: 'medium',
+        tags: ['python', 'interview'],
+        schema: ['orders', 'order_items', 'products', 'customers'],
+        theory: `
+<p>Pandas operations map cleanly to SQL:</p>
+<p><code>merge</code> -> JOIN, <code>groupby</code> -> GROUP BY, <code>transform</code> -> window functions.</p>
+<p>Interviewers expect you to switch between Python and SQL thinking fluidly.</p>`,
+        challenges: [
+          ch('Python SQL Bridge', 'groupby + agg equivalent', 'Find total spend per customer.', 'SUM quantity*unit_price grouped by customer.', 'SELECT o.customer_id, ROUND(SUM(oi.quantity * oi.unit_price),2) AS total_spend FROM orders o JOIN order_items oi ON oi.order_id = o.id GROUP BY o.customer_id ORDER BY total_spend DESC;', (r) => r && r.length > 0 && Object.prototype.hasOwnProperty.call(r[0], 'total_spend'), 90),
+          ch('Python SQL Bridge', 'merge + filter equivalent', 'Return top 10 products by revenue with product names.', 'Join order_items with products, group by product.', 'SELECT p.name, ROUND(SUM(oi.quantity * oi.unit_price),2) AS revenue FROM order_items oi JOIN products p ON p.id = oi.product_id GROUP BY p.id, p.name ORDER BY revenue DESC LIMIT 10;', (r) => r && r.length > 0, 95),
+        ],
+      },
+    ],
+  };
+
+  const javascriptStarterModule = {
+    name: 'JavaScript Starter Track',
+    icon: 'JS',
+    track: 'javascript',
+    lessons: [
+      {
+        title: 'JavaScript Essentials for Backend Logic',
+        sub: 'Objects, arrays, async flow basics',
+        diff: 'easy',
+        tags: ['concept', 'javascript'],
+        schema: ['orders', 'customers'],
+        theory: `
+<p>JavaScript backend work needs strong array/object handling and async API flow.</p>
+<p>Most backend data APIs rely on SQL output transformed into JSON.</p>`,
+        challenges: [
+          ch('JS SQL Bridge', 'Object list payload', 'Return latest 10 orders with customer name for API response.', 'JOIN + ORDER BY + LIMIT', 'SELECT o.id, o.order_date, o.status, c.name AS customer_name FROM orders o JOIN customers c ON c.id = o.customer_id ORDER BY o.order_date DESC, o.id DESC LIMIT 10;', (r) => r && r.length > 0 && Object.prototype.hasOwnProperty.call(r[0], 'customer_name'), 70),
+          ch('JS SQL Bridge', 'Array filter equivalent', 'Find delivered orders only.', "WHERE status = 'Delivered' OR delivered", "SELECT id, customer_id, order_date, status FROM orders WHERE LOWER(status) IN ('delivered', 'complete');", (r) => Array.isArray(r), 60),
+        ],
+      },
+      {
+        title: 'Async APIs and Data Aggregation',
+        sub: 'Build endpoint-ready analytics outputs',
+        diff: 'medium',
+        tags: ['javascript', 'project'],
+        schema: ['orders', 'order_items', 'products'],
+        theory: `
+<p>In Node/Express apps, SQL powers dashboard APIs. Keep queries stable and deterministic so frontend graphs remain consistent.</p>
+<p>Always include clear aliases and predictable ordering for API contracts.</p>`,
+        challenges: [
+          ch('JS SQL Bridge', 'Chart API dataset', 'Return monthly revenue trend for line chart.', "strftime('%Y-%m', order_date)", "SELECT strftime('%Y-%m', o.order_date) AS month_key, ROUND(SUM(oi.quantity * oi.unit_price),2) AS revenue FROM orders o JOIN order_items oi ON oi.order_id = o.id GROUP BY month_key ORDER BY month_key;", (r) => r && r.length > 0 && Object.prototype.hasOwnProperty.call(r[0], 'month_key'), 90),
+          ch('JS SQL Bridge', 'Endpoint pagination sample', 'Return products sorted by rating then price, first 20 rows.', 'ORDER BY rating DESC, price DESC LIMIT 20', 'SELECT id, name, rating, price FROM products ORDER BY rating DESC, price DESC LIMIT 20;', (r) => r && r.length > 0 && r.length <= 20, 75),
+        ],
+      },
+      {
+        title: 'Full-stack Data Contracts',
+        sub: 'Validation, edge cases, and interview patterns',
+        diff: 'medium',
+        tags: ['javascript', 'interview'],
+        schema: ['customers', 'orders', 'order_items', 'products'],
+        theory: `
+<p>Frontend and backend agree on data contract fields. SQL should return exactly what UI needs, not extra noisy columns.</p>
+<p>Interview pattern: explain API payload shape, sorting guarantees, and null-safe defaults.</p>`,
+        challenges: [
+          ch('JS SQL Bridge', 'Contract-safe payload', 'Return city-level metrics with fixed keys: city, total_customers, total_orders.', 'Left join customers->orders and group by city.', 'SELECT c.city, COUNT(DISTINCT c.id) AS total_customers, COUNT(o.id) AS total_orders FROM customers c LEFT JOIN orders o ON o.customer_id = c.id GROUP BY c.city ORDER BY total_orders DESC;', (r) => r && r.length > 0 && Object.prototype.hasOwnProperty.call(r[0], 'total_orders'), 95),
+          ch('JS SQL Bridge', 'Top products endpoint', 'Return top 5 products with units_sold and revenue.', 'JOIN + SUM(quantity) + SUM(quantity*unit_price)', 'SELECT p.name, SUM(oi.quantity) AS units_sold, ROUND(SUM(oi.quantity * oi.unit_price),2) AS revenue FROM order_items oi JOIN products p ON p.id = oi.product_id GROUP BY p.id, p.name ORDER BY revenue DESC LIMIT 5;', (r) => r && r.length > 0 && r.length <= 5, 100),
+        ],
+      },
+    ],
+  };
+
   const supplementalTheory = `
 <p><strong>Deep-dive checklist (use every lesson):</strong></p>
 <p>1) Data type correctness (text vs numeric vs date)</p>
@@ -246,8 +352,11 @@ FROM products WHERE price > 0;</div>
     }
   }
 
-  // Merge mode: preserve original module order and append new deep module at the end.
+  // Merge mode: preserve original module order and append additional starter tracks.
+  modulesRef.forEach((m) => { if (!m.track) m.track = 'sql'; });
   modulesRef.push(fundamentalsModule);
+  modulesRef.push(pythonStarterModule);
+  modulesRef.push(javascriptStarterModule);
   modulesRef.forEach((m, mi) => {
     (m.lessons || []).forEach((l, li) => enrichLesson(l, mi, li));
   });

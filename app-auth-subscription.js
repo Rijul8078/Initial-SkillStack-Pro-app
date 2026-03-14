@@ -359,8 +359,11 @@
   window.renderSidebar = function (filter = '') {
     const el = document.getElementById('sidebar-list');
     let html = '';
+    const selectedTrack = window.__activeTrackId || 'sql';
 
     MODULES.forEach((mod, mi) => {
+      const modTrack = mod.track || 'sql';
+      if (modTrack !== selectedTrack) return;
       const matchLessons = mod.lessons.filter((l) => !filter || l.title.toLowerCase().includes(filter.toLowerCase()));
       if (filter && matchLessons.length === 0) return;
 

@@ -1802,6 +1802,7 @@ let completedChallenges = {}; // key: "m-l-ch" -> true
 let xp = 0;
 let totalLessons = MODULES.reduce((s,m) => s + m.lessons.length, 0);
 let activeTrackId = 'sql';
+window.__activeTrackId = activeTrackId;
 const TRACKS = [
   { id: 'sql', name: 'SQL Track', status: 'live', desc: 'Zero to interview-ready SQL with projects and mock rounds.' },
   { id: 'python', name: 'Python Track', status: 'expanding', desc: 'Data handling, scripting, and interview coding patterns.' },
@@ -1831,15 +1832,9 @@ function setTrackMessage(text) {
 window.selectTrack = function (trackId) {
   const track = TRACKS.find((t) => t.id === trackId);
   if (!track) return;
-
-  if (track.id !== 'sql') {
-    setTrackMessage(`${track.name} modules are being expanded. SQL Track is live right now.`);
-    renderTrackHub();
-    return;
-  }
-
-  activeTrackId = 'sql';
-  setTrackMessage('SQL Track selected.');
+  activeTrackId = track.id;
+  window.__activeTrackId = activeTrackId;
+  setTrackMessage(`${track.name} selected.`);
   renderTrackHub();
   try { renderSidebar(document.getElementById('search-input')?.value || ''); } catch (_) {}
 };
@@ -1919,6 +1914,8 @@ function renderSidebar(filter='') {
   const el = document.getElementById('sidebar-list');
   let html = '';
   MODULES.forEach((mod, mi) => {
+    const modTrack = mod.track || 'sql';
+    if (modTrack !== activeTrackId) return;
     const matchLessons = mod.lessons.filter(l =>
       !filter || l.title.toLowerCase().includes(filter.toLowerCase())
     );
